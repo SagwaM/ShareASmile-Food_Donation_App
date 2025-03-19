@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom"; // For navigation after successful registration
 import axios from "axios"; // To send requests to the backend
 import { Card, CardContent, Typography } from "@mui/material";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@mui/material";
 import { Input } from "@/components/ui/Input";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Mail, Lock, Eye, EyeOff, User, CheckCircle, Home, Phone, Upload } from "lucide-react";
@@ -95,7 +95,7 @@ export default function RegisterPage() {
       <div className="row w-100 shadow-lg rounded p-4 bg-white" style={{ maxWidth: "1100px", minHeight: "600px" }}>
         {/*  Account Type Selection */}
         <div className="col-md-5 border-end">
-          <h4 className="fw-bold" >Choose Account Type</h4>
+          <h4 className="fw-bold text-dark" >Choose Account Type</h4>
           <p className="text-muted">Select the type of account that best describes your role</p>
 
           {/* Account Type Cards */}
@@ -106,7 +106,7 @@ export default function RegisterPage() {
           ].map((type) => (
             <Card
               key={type.id}
-              className={`account-type-card p-3 mb-2 ${selectedType === type.id ? "selected" : ""} `}
+              className={`account-type-card p-3 mb-2 ${selectedType === type.id ? "selected" : ""} color="" `}
               sx={{
                 backgroundColor: theme.palette.background.default, // Changes in dark mode
                 color: theme.palette.text.primary, // Adjust text color
@@ -128,7 +128,7 @@ export default function RegisterPage() {
 
         {/* Right Side - Registration Form */}
         <div className="col-md-7" >
-          <h4 className="fw-bold" >Create Your Account</h4>
+          <h4 className="fw-bold text-dark" >Create Your Account</h4>
           <p className="text-muted">Join our platform to start making a difference in your community</p>
           {errors && <p className="text-danger">{errors}</p>}
           
@@ -210,7 +210,7 @@ export default function RegisterPage() {
             )}
             {/* Profile Picture Upload */}
             <div className="mb-3">
-              <label className="form-label">Upload Profile Picture</label>
+              <label className="form-label text-dark">Upload Profile Picture</label>
               <div className="input-group">
                 <input type="file" className="form-control" name="profile_picture" onChange={handleFileChange} />
                 <span className="input-group-text"><Upload /></span>
@@ -226,15 +226,15 @@ export default function RegisterPage() {
                 className="form-check-input me-2"
                 style={{ width: "20px", height: "20px", cursor: "pointer" }} // Increases checkbox size
               />
-              <label htmlFor="terms" className="form-check-label">
+              <label htmlFor="terms" className="form-check-label text-dark" >
                 I accept the <Link to="/terms">Terms and Conditions</Link>
               </label>
             </div>
-            <Button className="w-100 btn-success" disabled={loading}>
+            <Button className="w-100 btn-success" color="" disabled={loading}>
               {loading ? "Creating Account..." : "Create Account"} </Button>
           </form>
 
-          <p className="text-center mt-3">
+          <p className="text-center mt-3 text-dark"  >
             Already have an account? <a href="/login" className="text-success">Sign in</a>
           </p>
         </div>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Test</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        .message { 
+            padding: 10px; 
+            margin: 5px; 
+            border-radius: 5px; 
+            display: flex; 
+            flex-direction: column;
+            position: relative;
+        }
+        .sent { background-color: #cce5ff; align-self: flex-end; }
+        .received { background-color: #d4edda; align-self: flex-start; }
+        .read-receipt { 
+            font-size: 12px; 
+            color: green; 
+            align-self: flex-end;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Chat App</h2>
+    <label>User ID:</label>
+    <input type="text" id="userId" placeholder="Enter User ID">
+    <button onclick="connectUser()">Connect</button>
+
+    <h3>Chat</h3>
+    <div id="chatBox" style="display: flex; flex-direction: column; width: 300px; height: 400px; overflow-y: auto; border: 1px solid #ccc;"></div>
+
+    <label>Send to:</label>
+    <input type="text" id="receiverId" placeholder="Receiver ID">
+    <input type="text" id="messageInput" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+    
+    <script>
+        let socket;
+        let userId;
+        let messageMap = {}; // To track sent messages for read receipts
+
+        function connectUser() {
+            userId = document.getElementById('userId').value;
+            if (!userId) {
+                alert("Please enter a User ID!");
+                return;
+            }
+
+            socket = io("http://localhost:5000"); // Adjust based on your server's port
+            socket.emit("join", userId); // Join room with User ID
+
+            socket.on("receiveMessage", (data) => {
+                console.log("📩 Message received:", data);
+
+                // Only show the message if it's NOT from the current sender
+                if (data.sender !== userId) {
+                    displayMessage(data, "received");
+
+                     // Send a read receipt back to the sender
+                     socket.emit("markAsRead", data.messageId );
+                }
+                
+            });
+
+            socket.on("messageRead", (data) => {
+                console.log("✅ Read receipt received:", data);
+                updateReadReceipt(data.messageId);
+            });
+
+            alert(`✅ Connected as ${userId}`);
+        }
+
+        function sendMessage() {
+            const receiver = document.getElementById("receiverId").value;
+            const content = document.getElementById("messageInput").value;
+            if (!receiver || !content) {
+                alert("Receiver and message are required!");
+                return;
+            }
+            
+            // Temporary message ID until server responds
+            const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const messageData = { sender: userId, receiver, content };
+
+            // Display the message instantly
+            messageMap[tempMessageId] = displayMessage(messageData, "sent");
+
+            // ✅ Emit message to server
+            socket.emit("sendMessage", messageData, (savedMessage) => {
+                if (savedMessage && savedMessage._id) {
+                    const oldMessageElement = messageMap[tempMessageId];
+                    if (oldMessageElement) {
+                        oldMessageElement.setAttribute("data-message-id", savedMessage._id);
+                        messageMap[savedMessage._id] = oldMessageElement;
+                        delete messageMap[tempMessageId]; // Remove temp reference
+                    }
+                }
+            });
+            
+            document.getElementById("messageInput").value = "";
+        }
+
+        function displayMessage(data, type) {
+            const chatBox = document.getElementById("chatBox");
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message", type);
+            // ✅ Add an ID to track messages
+            messageElement.setAttribute("data-message-id", data.messageId);
+    
+            messageElement.innerHTML = `<span>${data.sender}: ${data.content}</span>
+                                <span class="read-receipt" id="read-${data.messageId}"></span>`;
+    
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (type === "sent") {
+                // Add a placeholder for the read receipt
+                const readReceipt = document.createElement("div");
+                readReceipt.classList.add("read-receipt");
+                readReceipt.textContent = "✔ Sent"; // Initially, just mark as sent
+                readReceipt.style.display = "block"; // Hide until read
+                messageElement.appendChild(readReceipt);
+            }
+
+            return messageElement; // Return element for updating later
+        }
+
+        function updateReadReceipt(messageId) {
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageElement) {
+                const readReceipt = messageElement.querySelector(".read-receipt");
+                if (readReceipt) {
+                    readReceipt.textContent = "✔✔ Read"; // Update to show read status
+                    readReceipt.style.display = "block"; // Make it visible
+                }
+            }
+        }
+    </script>
+</body>
+</html>

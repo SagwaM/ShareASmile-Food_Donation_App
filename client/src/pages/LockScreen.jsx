@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Container, Typography, useTheme, alpha, Avatar } from '@mui/material';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@mui/material';
 import { Input } from '@/components/ui/Input';
 import { Heart, Key, Lock, ShieldCheck, Fingerprint, Eye, EyeOff, UserRound } from 'lucide-react';
 import { useAuth } from "@/context/AuthContext"; // Assuming you have AuthContext
@@ -183,6 +183,7 @@ const LockScreen = () => {
                   size="icon"
                   onClick={togglePasswordVisibility}
                   style={{ 
+                    color: "black",
                     position: 'absolute',
                     right: '8px',
                     top: '50%',
@@ -206,7 +207,7 @@ const LockScreen = () => {
                 </Button>
                 
                 <Button
-                  variant="outline"
+                  variant="outlined"
                   type="button"
                   backgroundColor="black"
                   color={theme.palette.text.secondary}

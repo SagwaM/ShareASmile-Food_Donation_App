@@ -1,46 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Box,
-  Typography,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Drawer,
-  Toolbar,
-  AppBar,
-  Avatar,
-  MenuItem,
-  Menu,
-  IconButton,
-  CssBaseline,
-  useTheme,
-  CircularProgress,
-} from "@mui/material";
+  Box,Typography,Divider,ListItem,ListItemIcon,ListItemText,Drawer,Toolbar,AppBar,Avatar,MenuItem,Menu,IconButton,CssBaseline,useTheme,CircularProgress,List} from "@mui/material";
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    Tooltip,
-    CartesianGrid,
-    ResponsiveContainer,
-    Legend,
-} from "recharts";
+    BarChart,Bar,XAxis,YAxis,Tooltip,CartesianGrid,ResponsiveContainer,Legend,PieChart, Pie, Cell} from "recharts";
 import {
-  BarChart as BarChartIcon,
-  Home as HomeIcon,
-  Inventory as InventoryIcon,
-  Settings as SettingsIcon,
-  People as PeopleIcon,
-  Favorite as FavoriteIcon,
-  Logout as LogoutIcon,
-  Menu as MenuIcon,
-  Person as PersonIcon,
-  ChevronRight as ChevronRightIcon,
-} from "@mui/icons-material";
+  BarChart as BarChartIcon,Home as HomeIcon,Inventory as InventoryIcon,Settings as SettingsIcon,People as PeopleIcon,Favorite as FavoriteIcon,Logout as LogoutIcon,
+  Menu as MenuIcon,Person as PersonIcon,ChevronRight as ChevronRightIcon,} from "@mui/icons-material";
 import axios from 'axios';
 import { useAuth } from "@/context/AuthContext"; // Assuming you have an auth context
 
@@ -62,24 +28,38 @@ const Reports = ({ title }) => {
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [reportData, setReportData] = useState([]);
+  const [totalDonations, setTotalDonations] = useState([]);
+  const [donationsByCategory, setDonationsByCategory] = useState([]);
+  const [topDonors, setTopDonors] = useState([]);
+  const [requestsByStatus, setRequestsByStatus] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get("https://localhost:5000/api/stats/reports/total-donations", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        setReportData(response.data);
+        const [donationsRes, categoryRes, donorsRes, statusRes] = await Promise.all([
+          axios.get("http://localhost:5000/api/stats/reports/total-donations", { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get("http://localhost:5000/api/stats/reports/donations-by-category", { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get("http://localhost:5000/api/stats/reports/top-donors", { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get("http://localhost:5000/api/stats/reports/requests-by-status", { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+
+        setTotalDonations(donationsRes.data);
+        setDonationsByCategory(categoryRes.data);
+        setTopDonors(donorsRes.data);
+        setRequestsByStatus(statusRes.data);
       } catch (error) {
         console.error("Error fetching reports:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchReports();
-}, []);
+  }, [token]);
+
+  if (loading) return <CircularProgress />;
   
   const adminSidebarItems = [
     { icon: "Home", label: "Overview", href: "/dashboard/admin" },
@@ -258,7 +238,7 @@ const Reports = ({ title }) => {
       </Box>
     </Box>
   );
-
+  const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#d88484", "#c6d84f", "#4fd8c6", "#d84fd8"];
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <CssBaseline />
@@ -407,29 +387,95 @@ const Reports = ({ title }) => {
               mb: 0.5,
             }}
           >
-            Reports
+            Reports Overview
           </Typography>
           <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Reports Overview
-      </Typography>
+          {/* Donations Over Time */}
+            <Box sx={{ mb: 5 }}>
+              <Typography variant="h6">Total Donations Over Time</Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={totalDonations}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="_id" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar 
+                  key="total" 
+                  dataKey="count" 
+                  fill="" >
+                    {totalDonations.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={["#4caf50", "#4fd8c6"][index % 2]} />
+                    ))}
+                  </Bar>
+              
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
 
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={reportData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="category" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="count" fill="#1976d2" />
-          </BarChart>
-        </ResponsiveContainer>
-      )}
-    </Box>
-        
+            {/* Donations by Category */}
+            <Box sx={{ mb: 5 }}>
+              <Typography variant="h6">Donations by Category</Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={donationsByCategory}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="_id" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                    <Bar key="total" dataKey="count" fill="#8884d8" >
+                    {donationsByCategory.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#d88484", "#c6d84f", "#4fd8c6", "#d84fd8"][index % 8]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+
+            {/* Top Donors */}
+            <Box sx={{ mb: 5 }}>
+              <Typography variant="h6">Top Donors</Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topDonors}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="donor_name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar key="total" dataKey="count" fill="#8884d8">
+                  {topDonors.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={["#82ca9d", "#f44336", "#ff9800"][index % 3]} />
+                    ))}
+                    </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+
+            {/* Requests by Status */}
+            <Box sx={{ mb: 5 }}>
+              <Typography variant="h6">Requests by Status</Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={requestsByStatus}
+                    dataKey="count"
+                    nameKey="_id"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#8884d8"
+                    label
+                  >
+                    {requestsByStatus.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={["#4caf50", "#f44336", "#ff9800"][index % 3]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </Box>
+          </Box>
       </Box>
     </Box>
     

@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import { useThemeContext } from "@/context/ThemeContext";   // Import theme context
 import { Moon, Sun } from "lucide-react"; // Icons for light/dark mode
 

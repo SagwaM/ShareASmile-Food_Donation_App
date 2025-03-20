@@ -189,16 +189,41 @@ router.get("/reports/top-donors", authenticateUser, async (req, res) => {
         if (req.user.role !== "admin") {
             return res.status(403).json({ error: "Access denied" });
         }
+
         const topDonors = await Donation.aggregate([
-            { $group: { _id: "$donor", count: { $sum: 1} } },
+            { 
+                $group: { 
+                    _id: "$donor", 
+                    count: { $sum: 1 } 
+                } 
+            },
+            {
+                $lookup: {
+                    from: "users", // Ensure this matches your user collection name
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "donorDetails"
+                }
+            },
+            { $unwind: "$donorDetails" }, // Flatten donorDetails array
             { $sort: { count: -1 } },
-            { $limit: 5 }
+            { $limit: 5 },
+            { 
+                $project: {
+                    _id: 0, // Hide the _id field
+                    donor_name: "$donorDetails.name", // Extract donor's name
+                    count: 1 // Keep the count
+                } 
+            }
         ]);
+
         res.status(200).json(topDonors);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 
 router.get("/reports/requests-by-status", authenticateUser, async (req, res) => {
     try {

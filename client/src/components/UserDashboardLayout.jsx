@@ -57,6 +57,7 @@ const iconMap = {
   "Available Donations": FastfoodIcon,
   Recipients: PeopleIcon,
   Impact: BarChartIcon,
+  "Manage Donation Claims": AssignmentTurnedInIcon,
 };
 
 const drawerWidth = 240;

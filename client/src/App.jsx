@@ -26,10 +26,11 @@ import MyRequests from "./pages/Dashboard/recipient/MyRequests";
 import AvailableDonations from "./pages/Dashboard/ngo/AvailableFood";
 import MyRequest from "./pages/Dashboard/ngo/MyRequests";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import TermsPage from "./pages/TermsPage";
-import Settings from "./pages/Settings";
+import ForgotPassword from "./pages/ForgotPassword";
 import ThemeToggle from "./components/ThemeToggle";
 import { ThemeProviderWrapper } from "@/context/ThemeContext";
 import { AuthProvider } from '@/context/AuthContext';
@@ -101,6 +102,13 @@ const App = () => {
                     </>
                     } 
                     />
+                    <Route path="/forgot-password" element={
+                    <>
+                    <ForgotPassword />
+                    <Footer />
+                    </>
+                    } 
+                    />
                   {/* 🔒 Protected Routes - Only accessible when logged in */}
                   <Route element={<ProtectedRoute allowedRoles={['admin', 'ngo', 'donor', 'recipient']} />}>
                     <Route path="/profile" element={<Profile />} />
@@ -130,6 +138,7 @@ const App = () => {
                     <Route path="/dashboard/donor/my-donations" element={<MyDonations />}/>
                     <Route path="/dashboard/donor/claims" element={<Claims />}/>
                     <Route path="/dashboard/donor/create" element={<CreateDonations />}
+                  
                     />
                   </Route>
 

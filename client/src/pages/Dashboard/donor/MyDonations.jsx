@@ -1,42 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import axios from 'axios';
 import {Link, useNavigate} from 'react-router-dom';
 import { message} from 'antd';
-import { Modal, Button, Form, Table } from "react-bootstrap";
+import { Modal, Form, Table } from "react-bootstrap";
 import {
-  Box,
-  Typography,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Drawer,
-  Toolbar,
-  AppBar,
-  Avatar,
-  MenuItem,
-  Menu,
-  IconButton,
-  CssBaseline,
-  useTheme,
-} from "@mui/material";
-
-import {
-  BarChart as BarChartIcon,
-  Home as HomeIcon,
-  Inventory as InventoryIcon,
-  Settings as SettingsIcon,
-  People as PeopleIcon,
-  Favorite as FavoriteIcon,
-  Logout as LogoutIcon,
-  Menu as MenuIcon,
-  Notifications as NotificationsIcon,
-  Person as PersonIcon,
-  ChevronRight as ChevronRightIcon,
-  Add as AddIcon,
-} from "@mui/icons-material";
+  Box,Typography,Divider,List,ListItem,ListItemIcon,ListItemText,Drawer,Toolbar,AppBar,Avatar,MenuItem,Menu,Dialog,DialogTitle,
+  DialogContent,DialogActions,TextField,IconButton,CssBaseline,useTheme,Button, Stack} from "@mui/material";
+import {BarChart as BarChartIcon,Home as HomeIcon,Inventory as InventoryIcon,Settings as SettingsIcon,People as PeopleIcon,Favorite as FavoriteIcon,Logout as LogoutIcon,Menu as MenuIcon,Notifications as NotificationsIcon,Person as PersonIcon,ChevronRight as ChevronRightIcon,
+  Add as AddIcon,Delete as DeleteIcon,AssignmentTurnedIn as AssignmentTurnedInIcon, DeleteOutline, EditOutlined} from "@mui/icons-material";
+import { PlusCircle } from 'lucide-react'
 import { useAuth } from "@/context/AuthContext"; // Assuming you have an auth context
+import iziToast from "izitoast";
+import "izitoast/dist/css/iziToast.min.css";
+
 
 const iconMap = {
   Home: HomeIcon,
@@ -46,10 +22,10 @@ const iconMap = {
   Settings: SettingsIcon,
   "My Donations": FavoriteIcon,
   "Create Donation": AddIcon,
+  "Manage Donation Claims": AssignmentTurnedInIcon,
 };
 
 const drawerWidth = 240;
-
 const donorSidebarItems = [
   { icon: "Home", label: "Overview", href: "/dashboard/donor" },
   { icon: "My Donations", label: "My Donations", href: "/dashboard/donor/my-donations" },
@@ -64,15 +40,25 @@ const MyDonations = ({title}) => {
   const theme = useTheme();
     const { user } = useAuth();
     const userType = user?.role || "donor";
-  
+    const [openModal, setOpenModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [newDonation, setNewDonation] = useState({ food_name: "", quantity: "" });
   
     const [profileAnchorEl, setProfileAnchorEl] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
     const token = localStorage.getItem("token");
+    const [formData, setFormData] = useState({
+        food_name: "",
+        category: "",
+        custom_category: "",
+        quantity: "",
+        description: "",
+        expiry_date: "",
+        pickup_location: "",
+        status: "Available",
+        image: null,
+      });
 
-  useEffect(() => {
     const fetchDonations = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/food/my-donations', {
@@ -80,13 +66,41 @@ const MyDonations = ({title}) => {
         });
         setDonations(response.data);
       } catch (error) {
-        message.error('Failed to fetch donations');
+        iziToast.error({
+          title: "Error",
+          message: "Failed to fetch donations",
+          position: "topRight",
+          timeout: 3000
+        });
       } finally {
         setLoading(false);
       }
     };
-    fetchDonations();
-  }, []);
+    useEffect(() => {
+      fetchDonations();
+    }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/food/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setDonations(donations.filter(donation => donation._id !== id));
+      iziToast.success({
+        title: "Success",
+        message: "Food donation deleted successfully",
+        position: "topRight",
+        timeout: 3000
+      });
+    } catch (error) {
+      iziToast.error({
+        title: "Error",
+        message: "Failed to delete donation",
+        position: "topRight",
+        timeout: 3000
+      });
+    }
+  };
   
   const sidebarItemsMap = { donor: donorSidebarItems };
     const sidebarItems = sidebarItemsMap[userType];
@@ -104,19 +118,65 @@ const MyDonations = ({title}) => {
     };
   
     const handleShow = () => setShowModal(true);
-    const handleClose = () => setShowModal(false);
-  
+
     const handleChange = (e) => {
       const { name, value } = e.target;
-      setNewDonation({ ...newDonation, [name]: value });
+      setFormData({ ...formData, [name]: value });
     };
   
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      setDonations([...donations, { ...newDonation, id: donations.length + 1 }]);
-      setNewDonation({ food_name: "", quantity: "" });
-      handleClose();
+    const handleFileChange = (e) => {
+      setFormData({ ...formData, image: e.target.files[0] });
     };
+    // ✅ Close modal function (previously missing)
+    const handleClose = () => {
+      setOpenModal(false);
+    };
+  
+    // ✅ Open modal function
+    const handleOpen = () => {
+      setOpenModal(true);
+    };
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      const formDataToSend = new FormData();
+  
+      Object.keys(formData).forEach((key) => {
+        if (formData[key]) {
+          formDataToSend.append(key, formData[key]);
+      }
+      });
+      console.log("FormData:", [...formDataToSend.entries()]); // Debugging
+  
+      try {
+        const response = await axios.post(`http://localhost:5000/api/food/`, formDataToSend, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        console.log("Donation created:", response.data);
+        fetchDonations(); // Refresh the donation list
+        handleClose();
+        iziToast.success({
+          title: "Success",
+          message: "Food donation created successfully!",
+          position: "topRight",
+          timeout: 3000
+        });
+      
+      } catch (error) {
+        console.error("Error creating donation:", error.response?.data || error);
+        
+        iziToast.error({
+          title: "Error",
+          message: "Failed to create donation",
+          position: "topRight",
+          timeout: 3000
+        });
+      }
+    };
+  
   
     const isActive = (href) => {
       return window.location.pathname === href;
@@ -406,12 +466,12 @@ const MyDonations = ({title}) => {
                             {drawer}
                           </Drawer>
                         </Box>
-                  <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
-                    <Button variant="success" onClick={handleShow} className="mb-3">
-                      <AddIcon /> Create Donation
-                    </Button>
+                        <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
+                          <Button variant="contained" color="success" onClick={handleOpen} className="mb-3">
+                            <AddIcon /> Create Donation
+                          </Button>
             
-                    <Table striped bordered hover>
+                    <Table striped bordered hover className="text-center">
                       <thead>
                         <tr>
                           <th>#</th>
@@ -432,37 +492,116 @@ const MyDonations = ({title}) => {
                               <td>{donation.quantity}</td>
                               <td>{donation.status}</td>
                               <td>{new Date(donation.created_at).toLocaleDateString()}</td>
-                            
-                              
+                              <td>
+                                <Stack direction="row" spacing={2} justifyContent="center">
+                                  <Button variant="contained" onClick={() => handleDelete(donation._id)}>
+                                    <EditOutlined /> Edit
+                                  </Button>
+                                  <Button variant="contained" color="error" onClick={() => handleDelete(donation._id)}>
+                                    <DeleteOutline /> Delete
+                                  </Button>
+                                </Stack>
+                              </td>
                             </tr>
                           ))
                         ) : (
                           <tr>
-                            <td colSpan="3" className="text-center">No donations available</td>
+                            <td colSpan="6" className="text-center">No donations available</td>
                           </tr>
                         )}
                       </tbody>
                     </Table>
                   </Box>
             
-                  <Modal show={showModal} onHide={handleClose}>
-                    <Modal.Header closeButton>
-                      <Modal.Title>Create Donation</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Food Name</Form.Label>
-                          <Form.Control type="text" name="foodName" value={newDonation.foodName} onChange={handleChange} required />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Quantity</Form.Label>
-                          <Form.Control type="number" name="quantity" value={newDonation.quantity} onChange={handleChange} required />
-                        </Form.Group>
-                        <Button variant="success" type="submit">Submit</Button>
-                      </Form>
-                    </Modal.Body>
-                  </Modal>
+                  <Dialog open={openModal} onClose={handleClose} fullWidth maxWidth="sm">
+                  <DialogTitle>Create Food Donation</DialogTitle>
+                  <DialogContent>
+                    <TextField
+                      label="Food Name"
+                      name="food_name"
+                      value={formData.food_name}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="dense"
+                    />
+                    <TextField
+                      select
+                      label="Category"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="dense"
+                    >
+                      <MenuItem value="Vegetarian">Vegetarian</MenuItem>
+                      <MenuItem value="Non-Vegetarian">Non-Vegetarian</MenuItem>
+                      <MenuItem value="Dairy">Dairy</MenuItem>
+                      <MenuItem value="Grains">Grains</MenuItem>
+                      <MenuItem value="Canned Goods">Canned Goods</MenuItem>
+                      <MenuItem value="Fresh Produce">Fresh Produce</MenuItem>
+                      <MenuItem value="Others">Others</MenuItem>
+                    </TextField>
+                    {formData.category === "Others" && (
+                      <TextField
+                        label="Custom Category"
+                        name="custom_category"
+                        value={formData.custom_category}
+                        onChange={handleChange}
+                        fullWidth
+                        margin="dense"
+                      />
+                    )}
+                    <TextField
+                      label="Quantity"
+                      name="quantity"
+                      type="number"
+                      value={formData.quantity}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="dense"
+                    />
+                    <TextField
+                      label="Description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="dense"
+                      multiline
+                      rows={3}
+                    />
+                    <TextField
+                      label="Expiry Date"
+                      name="expiry_date"
+                      type="date"
+                      value={formData.expiry_date}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="dense"
+                      InputLabelProps={{ shrink: true }}
+                    />
+                    <TextField
+                      label="Pickup Location"
+                      name="pickup_location"
+                      value={formData.pickup_location}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="dense"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ marginTop: "10px" }}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleSubmit} variant="contained" color="primary">
+                      Submit
+                    </Button>
+                  </DialogActions>
+                </Dialog>
                 </Box>
                 
               );

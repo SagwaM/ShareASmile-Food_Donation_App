@@ -168,7 +168,7 @@ router.get('/claims', authenticateUser, multipleRoles(['donor', 'admin']), async
   try {
     const claims = {
       Pending: await FoodDonation.find({ donor: req.user.userId, approval_status: "Pending" })
-        .populate("claimed_by", "name") // Populate only the name field
+        .populate({path: "claimed_by", select: "name",}) // Populate only the name field
         .select("food_name claimed_by approval_status claimed_date"),
       Approved: await FoodDonation.find({ donor: req.user.userId, approval_status: "Approved" })
         .populate("claimed_by", "name") // Populate only the name field

@@ -20,6 +20,8 @@ const iconMap = {
   Settings: SettingsIcon,
   "My Requests": AssignmentTurnedInIcon,
   "Available Donations": FastfoodIcon,
+  "My Donations": FavoriteIcon,
+  "Manage Donation Claims": AssignmentTurnedInIcon,
 };
 
 const drawerWidth = 240;

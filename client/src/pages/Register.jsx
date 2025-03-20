@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom"; // For navigation after successful registration
 import axios from "axios"; // To send requests to the backend
-import { Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent, Typography, Paper } from "@mui/material";
 import { Button } from "@mui/material";
 import { Input } from "@/components/ui/Input";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -91,13 +91,27 @@ export default function RegisterPage() {
 
 
   return (
-    <div className="container d-flex align-items-center justify-content-center vh-100">
-      <div className="row w-100 shadow-lg rounded p-4 bg-white" style={{ maxWidth: "1100px", minHeight: "600px" }}>
+    <div className="container d-flex align-items-center justify-content-center vh-100" style={{
+      maxWidth: "1100px",
+      minHeight: "600px",
+      backgroundColor: theme.palette.background.default, // Dynamic background
+      color: theme.palette.text.primary, // Adjust text color
+    }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
+      <div
+        className="row w-100 shadow-lg rounded p-4"
+        style={{
+          maxWidth: "1100px",
+          minHeight: "600px",
+          backgroundColor: theme.palette.background.default, // Dynamic background
+          color: theme.palette.text.primary, // Adjust text color
+        }}
+      >
         {/*  Account Type Selection */}
         <div className="col-md-5 border-end">
-          <h4 className="fw-bold text-dark" >Choose Account Type</h4>
-          <p className="text-muted">Select the type of account that best describes your role</p>
-
+          <h4 className="fw-bold" >Choose Account Type</h4>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+            Select the type of account that best describes your role</Typography>
           {/* Account Type Cards */}
           {[
             { id: "donor", icon: <CheckCircle />, label: "Food Donor", desc: "Restaurants, grocery stores, farms, or individuals with excess food to donate" },
@@ -106,20 +120,26 @@ export default function RegisterPage() {
           ].map((type) => (
             <Card
               key={type.id}
-              className={`account-type-card p-3 mb-2 ${selectedType === type.id ? "selected" : ""} color="" `}
+              className={`account-type-card p-3 mb-2 ${selectedType === type.id ? "selected" : ""} `}
               sx={{
-                backgroundColor: theme.palette.background.default, // Changes in dark mode
-                color: theme.palette.text.primary, // Adjust text color
+                backgroundColor: theme.palette.mode === "dark" ? "#2C2C2C" : theme.palette.background.paper, // Dark gray in dark mode
+                color: selectedType === type.id ? "#ffffff"  : theme.palette.text.primary, // Force white text in dark mode
                 padding: 3,
                 boxShadow: 3,
+                transition: "background-color 0.3s ease", // Smooth transition on mode change
               }}
               onClick={() => setSelectedType(type.id)}
             >
               <div className="d-flex align-items-center">
-                <div className="icon me-2">{type.icon}</div>
+                <div className="icon me-2" style={{ color: theme.palette.mode === "dark" ? "#ffffff" : "inherit" }}>{type.icon}</div>
                 <div>
-                  <h6 className="fw-bold mb-0">{type.label}</h6>
-                  <p className="text-muted small mb-0">{type.desc}</p>
+                  <h6 className="fw-bold mb-0" style={{ color: theme.palette.mode === "dark" ? "#ffffff" : "inherit" }}>{type.label}</h6>
+                  <Typography 
+                  variant="body2" 
+                  color={theme.palette.mode === "dark" ? "text.secondary" : "text.primary"}
+                >
+                  {type.desc}
+                </Typography>
                 </div>
               </div>
             </Card>
@@ -128,8 +148,10 @@ export default function RegisterPage() {
 
         {/* Right Side - Registration Form */}
         <div className="col-md-7" >
-          <h4 className="fw-bold text-dark" >Create Your Account</h4>
-          <p className="text-muted">Join our platform to start making a difference in your community</p>
+          <h4 className="fw-bold" >Create Your Account</h4>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+            Join our platform to start making a difference in your community
+            </Typography>
           {errors && <p className="text-danger">{errors}</p>}
           
           <form onSubmit={handleSubmit}>
@@ -210,7 +232,7 @@ export default function RegisterPage() {
             )}
             {/* Profile Picture Upload */}
             <div className="mb-3">
-              <label className="form-label text-dark">Upload Profile Picture</label>
+              <label className="form-label">Upload Profile Picture</label>
               <div className="input-group">
                 <input type="file" className="form-control" name="profile_picture" onChange={handleFileChange} />
                 <span className="input-group-text"><Upload /></span>
@@ -226,7 +248,7 @@ export default function RegisterPage() {
                 className="form-check-input me-2"
                 style={{ width: "20px", height: "20px", cursor: "pointer" }} // Increases checkbox size
               />
-              <label htmlFor="terms" className="form-check-label text-dark" >
+              <label htmlFor="terms" className="form-check-label" >
                 I accept the <Link to="/terms">Terms and Conditions</Link>
               </label>
             </div>
@@ -234,11 +256,12 @@ export default function RegisterPage() {
               {loading ? "Creating Account..." : "Create Account"} </Button>
           </form>
 
-          <p className="text-center mt-3 text-dark"  >
+          <p className="text-center mt-3"  >
             Already have an account? <a href="/login" className="text-success">Sign in</a>
           </p>
         </div>
       </div>
+      </Paper>
     </div>
   );
 }

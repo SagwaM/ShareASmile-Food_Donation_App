@@ -96,10 +96,7 @@ export default function DashboardLayout({ children, title, userType, userData })
     };
   
     fetchNotifications();
-    // Polling to check for new notifications every 5 seconds
-    const interval = setInterval(fetchNotifications, 5000);
-
-    return () => clearInterval(interval); // Cleanup on unmount
+    
   }, []);
   
   const unreadCount = Array.isArray(notifications)

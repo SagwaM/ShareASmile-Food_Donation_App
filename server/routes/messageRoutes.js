@@ -2,6 +2,7 @@ const express = require('express');
 const Message = require('../models/Message');
 const { authenticateUser } = require('../middlewares/authMiddleware');
 const mongoose = require("mongoose");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -13,7 +14,6 @@ router.post('/', authenticateUser, async (req, res) => {
     if (!receiver || !content) {
       return res.status(400).json({ error: 'Receiver and content are required' });
     }
-
     const newMessage = new Message({
       sender: req.user.userId, // Authenticated user as sender
       receiver,
@@ -24,7 +24,7 @@ router.post('/', authenticateUser, async (req, res) => {
     const savedMessage = await newMessage.save();
 
     // Get sender details
-    const senderDetails = await User.findById(req.user.userId).select('name');
+    const senderDetails = await User.findById(req.user.userId).select('name _id');
 
     const responseMessage = {
       ...savedMessage.toObject(),
@@ -78,7 +78,7 @@ router.get('/:userId', authenticateUser, async (req, res) => {
         { sender: userId, receiver: otherUser },
         { sender: otherUser, receiver: userId }
       ]
-    }).populate('sender', 'name').populate('receiver', 'name') // Fetch sender & receiver names
+    }).populate('sender', 'name profile_picture').populate('receiver', 'name profile_picture') // Fetch sender & receiver names
       .sort({ timestamp: 1 })
       .skip((page - 1) * limit) // Pagination logic
       .limit(Number(limit));
@@ -189,7 +189,7 @@ router.get('/conversations/list', authenticateUser, async (req, res) => {
       }
   ]);
 
-
+  console.log("Raw messages from aggregation:", JSON.stringify(messages, null, 2));
   console.log("Raw messages from aggregation:", messages);
 
   res.json({ conversations: messages });

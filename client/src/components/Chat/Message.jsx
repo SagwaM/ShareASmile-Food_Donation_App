@@ -1,58 +1,38 @@
-import React, { useState } from "react";
-import { Fab, Box, Paper, Typography, IconButton } from "@mui/material";
-import ChatIcon from "@mui/icons-material/Chat";
-import CloseIcon from "@mui/icons-material/Close";
+import React from "react";
+import { Box, Typography } from "@mui/material";
+import { ThemeProviderWrapper } from "@/context/ThemeContext";
 
-const Chatbox = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
+const Message = ({ message, isSender }) => {
   return (
-    <>
-      {/* Floating Chat Button */}
-      <Fab
-        color="primary"
-        aria-label="chat"
-        onClick={() => setIsOpen(!isOpen)}
+    <ThemeProviderWrapper>
+    <Box sx={{
+      display: "flex",
+      justifyContent: isSender ? "flex-end" : "flex-start",
+      mb: 1,
+      px: 1, // Ensures spacing from edges
+    }}>
+      <Box
         sx={{
-          position: "fixed",
-          bottom: 20,
-          right: 20,
+          maxWidth: "60%", // Limit message width
+          p: 1.5,
+          borderRadius: isSender ? "15px 15px 0px 15px" : "15px 15px 15px 0px",
+          backgroundColor: isSender ? "#005A9C" : "#4CAF50", // Green for sender, gray for receiver
+          color: isSender ? "#fff" : "#000",
+          wordWrap: "break-word", // Ensures long messages wrap properly
+          whiteSpace: "pre-wrap", // Handles multiline messages correctly
         }}
       >
-        <ChatIcon />
-      </Fab>
-
-      {/* Chatbox UI */}
-      {isOpen && (
-        <Box
-          sx={{
-            position: "fixed",
-            bottom: 80,
-            right: 20,
-            width: 300,
-            maxHeight: 400,
-            bgcolor: "white",
-            boxShadow: 3,
-            borderRadius: 2,
-            overflow: "hidden",
-          }}
-        >
-          <Paper elevation={4} sx={{ p: 2 }}>
-            {/* Chat Header */}
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6">Chat</Typography>
-              <IconButton size="small" onClick={() => setIsOpen(false)}>
-                <CloseIcon />
-              </IconButton>
-            </Box>
-
-            {/* Placeholder Content */}
-            <Typography variant="body2">Select a user to start chatting...</Typography>
-          </Paper>
-        </Box>
-      )}
-    </>
+      <Typography variant="body1" sx={{ wordBreak: "break-word" }}>{message.content}</Typography>
+        <Typography variant="caption" sx={{ display: "block", textAlign: "right", mt: 0.5,  color: isSender ? "#E0E0E0" : "#555", }}>
+        {new Date(message.timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",})}
+        </Typography>
+      </Box>
+      
+    </Box>
+    </ThemeProviderWrapper>
   );
 };
 
-export default Chatbox;
+export default Message;

@@ -78,10 +78,10 @@ const Claims = ({ title }) => {
 
     useEffect(() => {
       fetchClaims();
-    }, [forceUpdate]);
+    }, []);
     
     const fetchClaims = async () => {
-      setLoading(true);
+    
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get("http://localhost:5000/api/food/claims",{
@@ -89,20 +89,19 @@ const Claims = ({ title }) => {
         });
         console.log("Claims Response:", response.data);
         // Ensure response.data.claims exists and is an array
-        const claimsData = Array.isArray(response.data) ? response.data : [];
+        const claimsData = response.data.claims || [];
         const organizedClaims = { Pending: [], Approved: [], Rejected: [] };
   
         claimsData.forEach((claim) => {
-          const statusKey = claim.approval_status.charAt(0).toUpperCase() + claim.approval_status.slice(1).toLowerCase();
-          if (organizedClaims[statusKey]) {
-            organizedClaims[statusKey].push(claim);
+          const status = claim.approval_status?.trim.toLowerCase()(); // Normalize status
+          if (status && organizedClaims[status.charAt(0).toUpperCase() + status.slice(1)]) {
+            organizedClaims[status.charAt(0).toUpperCase() + status.slice(1)].push(claim);
           } else {
             console.warn("Unexpected approval_status:", claim.approval_status);
           }
         });
         
         setClaims(response.data);
-        setForceUpdate(prev => !prev); // Force re-render
       } catch (error) {
         console.error("Error fetching claims:", error);
       }
@@ -110,7 +109,6 @@ const Claims = ({ title }) => {
   
     const handleApprove = async (id, claimId) => {
       if (!id || !claimId) {
-        console.log("Approving Claim - Donation ID:", id, "Claim ID:", claimId);
         console.error("Error: Donation ID is undefined!");
         return;
       }
@@ -128,7 +126,7 @@ const Claims = ({ title }) => {
         console.error("Error approving claim:", error.response?.data?.error || error.message);
       }
     };
-    
+  
     const handleReject = async (id, claimId, rejection_reason) => {
       if (!id ||!claimId) {
         console.error("Error: Donation ID is undefined!");
@@ -148,6 +146,7 @@ const Claims = ({ title }) => {
         console.error("Error rejecting claim:", error.response?.data?.error || error.message);
       }
     };
+  
   
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -537,14 +536,14 @@ const donorSidebarItems = [
                           <Button
                             variant="contained"
                             color="success"
-                            onClick={() => handleApprove(claim._id, claimer.claimId)}
+                            onClick={() => handleApprove(claim.donation_id, claim._id, claimer.claimId)}
                           >
                             Approve
                           </Button>
                           <Button
                             variant="contained"
                             color="error"
-                            onClick={() => handleReject(claim._id, claimer.claimId, "No valid reason")}
+                            onClick={() => handleReject(claim.donation_id, claim._id, claimer.claimId, "Not Eligible")}
                           >
                             Reject
                           </Button>

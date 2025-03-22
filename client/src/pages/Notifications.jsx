@@ -3,6 +3,8 @@ import axios from "axios";
 import { Drawer, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Badge, List, ListItem, ListItemText, IconButton, Box, Popover } from "@mui/material";
 import { Notifications as NotificationsIcon, Close as CloseIcon } from "@mui/icons-material";
 import { motion } from "framer-motion";
+import { ThemeProviderWrapper } from "@/context/ThemeContext";
+import { useTheme } from "@mui/material/styles";
 
 const Notifications = ({}) => {
   const [notifications, setNotifications] = useState([]);
@@ -11,6 +13,7 @@ const Notifications = ({}) => {
   const token = localStorage.getItem("token");
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const theme = useTheme();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -27,10 +30,8 @@ const Notifications = ({}) => {
     };
 
     fetchNotifications();
-    // Poll for new notifications every 5 seconds
-    const interval = setInterval(fetchNotifications, 5000);
-
-    return () => clearInterval(interval); // Cleanup interval on unmount
+   
+   
   }, []);
 
   const handleBellClick = (event) => {
@@ -65,6 +66,7 @@ const Notifications = ({}) => {
   };
 
   return (
+    <ThemeProviderWrapper>
     <>
      {/* Notification Bell */}
      <IconButton color="inherit" onClick={handleBellClick}>
@@ -127,6 +129,7 @@ const Notifications = ({}) => {
         </Box>
       </Drawer>
     </>
+    </ThemeProviderWrapper>
   );
 };
 

@@ -71,6 +71,20 @@ router.put('/profile', authenticateUser, upload.single('profile_picture'), async
       res.status(500).json({ error: 'Server error' });
     }
   });
+
+  router.get('/users', authenticateUser, async (req, res) => {
+    try {
+        const users = await User.find({ 
+          _id: { $ne: req.user.userId },
+          role: { $ne: 'admin' } 
+        }).select("name email _id profile_picture");
+        res.json(users);
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
   
   // @route   GET /api/users
 // @desc    Get all users (Admin only)

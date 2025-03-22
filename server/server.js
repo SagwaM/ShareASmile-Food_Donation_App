@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
   });
 
   // Handle typing indicator
-  socket.on('typing', ({ senderId, receiver, isTyping }) => {
+  socket.on("typing", ({ senderId, receiver, isTyping }) => {
     io.to(receiver).emit('typingIndicator', { senderId, isTyping });
   });
 

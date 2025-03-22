@@ -57,7 +57,7 @@ router.get("/activities/donor", authenticateUser, async (req, res) => {
             .sort({ created_at: -1 })
             .limit(10)
             .populate("claimed_by", "name email _id")
-            .select("_id status created_at claimed_by donor");
+            .select("_id status food_name created_at claimed_by donor");
 
         res.status(200).json({ activities });
     } catch (error) {
@@ -96,7 +96,7 @@ router.get("/activities/recipient", authenticateUser, async (req, res) => {
             .sort({ createdAt: -1 })
             .limit(10)
             .populate("donor", "name")
-            .select("_id status created_at donor");
+            .select("_id status food_name created_at donor");
 
         res.status(200).json({ activities });
     } catch (error) {
@@ -145,7 +145,7 @@ router.get("/activities/admin", authenticateUser, async (req, res) => {
             .sort({ created_at: -1 })
             .limit(10)
             .populate("donor claimed_by", "name")
-            .select("_id status created_at donor claimed_by");
+            .select("_id status food_name created_at donor claimed_by");
 
         res.status(200).json({ activities });
     } catch (error) {

@@ -80,11 +80,16 @@ export function ActivityFeed({ items = [] }) {
             )}
           
               <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle2" fontWeight={600}>
+              <Typography variant="subtitle1" fontWeight={600}>
+                  Donation: {activity.food_name}
+                </Typography>
+                <Typography variant="subtitle2" fontWeight={500}>
                   Donation Status: {activity.status}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                {activity.claimed_by ? `Claimed by: ${activity.claimed_by.name}` : "Not yet claimed"}
+                {activity.claimed_by && activity.claimed_by?.length > 0
+                  ? `Claimed by: ${activity.claimed_by.map(user => user.name).join(", ")}`
+                  : "Not yet claimed"}
                 </Typography>
                 <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: 'block' }}>
                 {new Date(activity.created_at).toLocaleString()}

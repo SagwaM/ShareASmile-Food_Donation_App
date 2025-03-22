@@ -79,7 +79,6 @@ const DonorDashboard = () => {
         setStats(response.data);
       })
       .catch((error) => console.error("Error fetching stats:", error));
-
     // Fetch recent activity
     axios.get(`http://localhost:5000/api/stats/activities/donor`, {
       headers: { Authorization: `Bearer ${token}` }

@@ -1,206 +1,289 @@
-import React, {useEffect, useState} from "react";
-import { Box, Typography, TextField, IconButton, List, ListItem, ListItemText, Divider } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Typography, IconButton, TextField, List, ListItem, ListItemText, CircularProgress, Avatar, Paper } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import axios from "axios";
+import io from "socket.io-client";  // Import socket.io-client
+import Message from "./Message";
+import {useAuth} from "@/context/AuthContext";
+import { ThemeProviderWrapper } from "@/context/ThemeContext";
+import { useTheme } from "@mui/material/styles";
 
-
-const Chatbox = ({onClose}) => {
-  const [participants, setParticipants] = useState([]); // Store participants
-  const [selectedUser, setSelectedUser] = useState(null); // Track selected chat
-  const [messages, setMessages] = useState([]); // Store chat messages
-  const [newMessage, setNewMessage] = useState(""); // Store new message
-  const [currentUserId, setCurrentUserId] = useState(null); // Store logged-in user's ID
-
+const socket = io("http://localhost:5000");
+const Chatbox = ({ onClose }) => {
+  const {user} = useAuth();
+  const theme = useTheme();
+  const [participants, setParticipants] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const token = localStorage.getItem("token");
 
-  // Fetch chat participants when chatbox opens
+  // Fetch logged-in user profile
   useEffect(() => {
-    const fetchParticipants = async () => {
+    const fetchUserProfile = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/message/conversations/list", {
+        const response = await axios.get("http://localhost:5000/api/user/profile", {
           headers: { Authorization: `Bearer ${token}` }
         });
-        console.log("API Response:", response.data);  // Debugging log
+        setCurrentUserId(response.data._id); // Store the logged-in user's ID
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
 
-       // Get the current logged-in user's ID
-        const currentUserResponse = await axios.get("http://localhost:5000/api/user/67bc395a79db9b2715c2bb7f", {
-        headers: { Authorization: `Bearer ${token}` },
-        });
-        const currentUserId = currentUserResponse.data._id; // Ensure this is the correct field
+    fetchUserProfile();
+  }, [token]);
+ 
+  useEffect(() => {
+    socket.on("typingIndicator", (data) => {
+      console.log("Typing event received:", data); // Debugging line
+      if (data.senderId === selectedUser?._id) {
+        setIsTyping(data.isTyping);
+        setTimeout(() => setIsTyping(false), 3000);
+      }
+    });
 
-        // Extract unique participants from sender & receiver fields
-        const uniqueUserIds = new Map();
-        response.data.conversations.forEach(({ senderDetails, receiverDetails }) => {
-            if (senderDetails._id !== currentUserId) {
-                uniqueUserIds.set(senderDetails._id.toString(), senderDetails);
-              }
+    return () => {
+      socket.off("typingIndicator");
+    };
+  }, [selectedUser]);
+  // Fetch chat participants
+  useEffect(() => {
+    const fetchChatData = async () => {
+      try {
+        const convRes = await axios.get(
+          "http://localhost:5000/api/message/conversations/list",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        // Fetch all users
+        const usersRes = await axios.get("http://localhost:5000/api/user/users", {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        const userDetails = await Promise.all(
-            [...uniqueUserIds.keys()].map(async (id) => {
-              const userResponse = await axios.get( `http://localhost:5000/api/user/${id}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-              );
-              return userResponse.data; // Assuming API returns { id, name }
-            })
-          );
+
+        const uniqueUsers = new Map();
+        convRes.data.conversations.forEach(({ senderDetails, receiverDetails }) => {
+          if (!uniqueUsers.has(senderDetails._id)) {
+            uniqueUsers.set(senderDetails._id, senderDetails);
+          }
+          if (!uniqueUsers.has(receiverDetails._id)) {
+            uniqueUsers.set(receiverDetails._id, receiverDetails);
+          }
+        });
     
-        setParticipants(userDetails);
+        // Filter out the logged-in user
+        const filteredParticipants = [...uniqueUsers.values()].filter((u) => u._id !== currentUserId);
+        // Filter all users to remove those already in chat
+        const newUsers = usersRes.data.filter(
+          (u) => u._id !== currentUserId && !filteredParticipants.some((p) => p._id === u._id)
+        );
+
+        setParticipants(filteredParticipants);
+        setAllUsers(newUsers);
       } catch (error) {
         console.error("Error fetching participants:", error);
       }
     };
 
-    fetchParticipants();
-  }, []);
+  
+    if (currentUserId) {
+      fetchChatData();
+    }
+  }, [currentUserId, token]);
 
+
+  // Fetch messages for a selected user
   const fetchMessages = async (userId) => {
+    setLoadingMessages(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/message/userId`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get(`http://localhost:5000/api/message/${userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const sortedMessages = response.data.sort(
+        (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+      );
+      console.log("Fetched messages:", response.data);
+      setMessages(sortedMessages);
+
+      sortedMessages.forEach(async (message) => {
+        if (message.receiver === currentUserId && !message.read) {
+          try {
+            await axios.put(
+              `http://localhost:5000/api/message/${message._id}/read`,
+              {},
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+          } catch (err) {
+            console.error(`Error marking message ${message._id} as read:`, err);
+          }
+        }
       });
-      setMessages(response.data.messages); // Assuming API returns { messages: [...] }
     } catch (error) {
       console.error("Error fetching messages:", error);
+    } finally {
+      setLoadingMessages(false);
     }
   };
-  
+
   const handleSelectUser = (user) => {
     setSelectedUser(user);
-    fetchMessages(user.id); // Fetch messages when user is selected
+    fetchMessages(user._id);
   };
-  
-  // Send message function
+
+  // Send a message
   const sendMessage = async () => {
-    if (!newMessage.trim()) return; // Prevent empty messages
+    if (!newMessage.trim()) return;
 
     try {
       const response = await axios.post("http://localhost:5000/api/message/",
-        {
-          receiverId: selectedUser._id,
-          content: newMessage,
-        },
+        { receiver: selectedUser._id, content: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      // Update chat with the new message
-      setMessages((prevMessages) => [...prevMessages, response.data.message]);
+      setMessages((prevMessages) => [...prevMessages, response.data]);
       setNewMessage("");
+
+      // If the user was not in the conversation list, add them
+      if (!participants.some((p) => p._id === selectedUser._id)) {
+        setParticipants([...participants, selectedUser]);
+      }
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
+  // Send typing indicator using WebSocket
+  const handleTyping = () => {
+    socket.emit("typing", { senderId: currentUserId, receiver: selectedUser?._id, isTyping: true });
+  
+    setTimeout(() => {
+      socket.emit("typing", { senderId: currentUserId, receiver: selectedUser?._id, isTyping: false });
+    }, 3000);
+  };
+  
+
 
   return (
-    <Box
+    <ThemeProviderWrapper>
+    <Paper
       sx={{
         display: "flex",
         flexDirection: "column",
-        width: "100%",  // Inherit full width of parent
+        width: "100%",
         height: "100%",
-        backgroundColor: "#f9f9f9",
-        borderRadius: "10px",
-        overflow: "hidden",
-        boxShadow: 3,
+        borderRadius: 3,
+        boxShadow: 5,
+        p: 2,
+        backgroundColor: theme.palette.background.paper, // Adapts to dark mode
+        color: theme.palette.text.primary, // Adapts text color
       }}
     >
-      {/* Chat Header */}
-      <Box sx={{
-         p: 2, 
-         backgroundColor: "#1976d2",
-         color: "#fff", 
-         display: "flex", 
-         justifyContent: "space-between", 
-         alignItems: "center",
-         borderTopLeftRadius: "10px",
-         borderTopRightRadius: "10px",
-         }}>
+      {/* Header */}
+      <Box sx={{ p: 2, backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText, display: "flex", alignItems: "center" }}>
+        {selectedUser && (
+          <IconButton onClick={() => setSelectedUser(null)} sx={{ color: "#fff", mr: 1 }}>
+            <ArrowBackIcon />
+          </IconButton>
+        )}
         <Typography variant="h6">{selectedUser ? selectedUser.name : "Chats"}</Typography>
-        <IconButton onClick={onClose} sx={{ 
-            color: "#fff", 
-            width: 50,
-            height: 50,
-            borderRadius: "50%",
-            backgroundColor: "success.main",
-            "&:hover": { backgroundColor: "primary.dark"} 
-            }}>
+        <IconButton onClick={onClose} sx={{ color: "#fff", marginLeft: "auto" }}>
           <CloseIcon />
         </IconButton>
       </Box>
 
-      {/* Participants List */}
+      {/* Chat List */}
       {!selectedUser ? (
-        <Box sx={{ flexGrow: 1, p: 2, backgroundColor: "#fff", overflowY: "auto" }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>Participants</Typography>
+        <Box sx={{ overflowY: "auto", flex: 1 }}>
+          <Typography variant="subtitle1" sx={{ pl: 2, pt: 1, fontWeight: "bold" }}>Recent Chats</Typography>
           <List>
             {participants.map((user) => (
-              <React.Fragment key={user._id}>
-                <ListItem button={true} onClick={() => handleSelectUser(user)} key={user._id}>
-                  <ListItemText primary={user.name} />
-                </ListItem>
-                <Divider  key={`divider-${user.id}`} />
-              </React.Fragment>
+              <ListItem
+                key={user._id}
+                button
+                onClick={() => handleSelectUser(user)}
+                sx={{
+                  borderRadius: 2,
+                  "&:hover": { backgroundColor: "#17B169" },
+                }}
+              >
+                <Avatar src={user.profile_picture} sx={{ mr: 2 }} />
+                <ListItemText primary={user.name} sx={{ fontSize: "16px" }} />
+              </ListItem>
+            ))}
+          </List>
+
+          <Typography variant="subtitle1" sx={{ pl: 2, pt: 2, fontWeight: "bold" }}>Start New Chat</Typography>
+          <List>
+            {allUsers.map((user) => (
+              <ListItem
+                key={user._id}
+                button
+                onClick={() => handleSelectUser(user)}
+                sx={{
+                  borderRadius: 2,
+                  "&:hover": { backgroundColor: "#17B169" },
+                }}
+              >
+                <Avatar src={user.profile_picture} sx={{ mr: 2 }} />
+                <ListItemText primary={user.name} sx={{ fontSize: "16px" }} />
+              </ListItem>
             ))}
           </List>
         </Box>
-    ) : (
-
-      /* Chat Messages Area (Only shown when a user is selected)*/
-      <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto", backgroundColor: "#fff", borderRadius: "0px",}}>
-        {messages.length > 0 ? (
-            messages.map((msg, index) => (
-              <Box key={index} sx={{
-                display: "flex",
-                justifyContent: msg.senderId === selectedUser._id ? "flex-start" : "flex-end",
-                mb: 1,
-              }}>
-                <Typography 
-                  sx={{
-                    backgroundColor: msg.senderId === selectedUser._id ? "#ddd" : "#1976d2",
-                    color: msg.senderId === selectedUser._id ? "#000" : "#fff",
-                    p: 1,
-                    borderRadius: "8px",
-                    maxWidth: "70%",
-                  }}
-                >
-                  {msg.content}
-                </Typography>
-              </Box>
+      ) : (
+        <Box sx={{ flex: 1, overflowY: "auto", p: 2, display: "flex", flexDirection: "column" }}>
+          {loadingMessages ? (
+            <CircularProgress />
+          ) : messages.length > 0 ? (
+            messages.map((message) => (
+              <Message key={message._id} message={message} isSender={message.sender._id === currentUserId} />
             ))
           ) : (
-            <Typography variant="body2" color="textSecondary">
-            No messages yet...
-            </Typography>
+            <Typography variant="body2" color="textSecondary">No messages yet...</Typography>
           )}
-      </Box>
-    )}
-
-      {/* Chat Input */}
-      {selectedUser && (
-      <Box sx={{ 
-        p: 1, 
-        display: "flex", 
-        alignItems: "center", 
-        borderTop: "1px solid #ddd",
-        borderBottomLeftRadius: "10px",
-        borderBottomRightRadius: "10px",
-        }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Type a message..."
-          size="small"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-        />
-        <IconButton color="success" onClick={sendMessage}>
-          <SendIcon />
-        </IconButton>
-      </Box>
+        </Box>
       )}
-    </Box>
+
+      {/* Message Input */}
+      {selectedUser && (
+        <Box sx={{ p: 1, display: "flex", alignItems: "center", borderTop: "1px solid #ddd" }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Type a message..."
+            size="small"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            sx={{
+              backgroundColor: theme.palette.background.default,
+              color: theme.palette.text.primary,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: theme.palette.divider,
+                },
+                "&:hover fieldset": {
+                  borderColor: theme.palette.primary.main,
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: theme.palette.primary.dark,
+                },
+              },
+            }}
+          />
+          <IconButton color="success" onClick={sendMessage}>
+            <SendIcon />
+          </IconButton>
+        </Box>
+      )}
+    </Paper>
+    </ThemeProviderWrapper>
   );
 };
 
-// **Ensure this is a default export**
+
 export default Chatbox;

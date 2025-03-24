@@ -149,7 +149,7 @@ We welcome contributions! Please follow these steps:
 
 ## 🔗 Links
 - **GitHub Repository**: [https://github.com/SagwaM/ShareASmile-Food_Donation_App](https://github.com/SagwaM/ShareASmile-Food_Donation_App)
-- **Live Demo**: [https://shareasmile.com]((https://share-a-smile-food-donation-app.vercel.app/))
+- **Live Demo**: [https://shareasmile.com](https://share-a-smile-food-donation-app.vercel.app/)
 - **API Documentation**: 
 
 ---

@@ -278,17 +278,13 @@ router.put('/cancel/:id', authenticateUser, async (req, res) => {
     await donorNotification.save();
 
     // Create a notification for the recipient (only if it was claimed)
-    if (donation.claimed_by && donation.claimed_by.length > 0) {
-      for (const recipientId of donation.claimed_by) {
       const recipientNotification = new Notification({
-        user: recipientId,
+        user: req.user.userId, // The recipient who cancelled the claim
         message: `Your request for "${donation.food_name}" has been successfully cancelled.`,
         type: 'cancellation',
       });
 
       await recipientNotification.save();
-    }
-  }
 
     res.json({ message: 'Food request cancelled successfully', donation });
 

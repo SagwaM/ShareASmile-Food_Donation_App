@@ -94,9 +94,18 @@ const Notifications = ({}) => {
                   <ListItem
                     button
                     onClick={() => handleNotificationClick(notification)}
-                    sx={{ background: notification.read ? "#f5f5f5" : "#e3f2fd", borderRadius: 1, mb: 1 }}
+                    sx={{ 
+                      backgroundColor: notification.read 
+                        ? theme.palette.mode === "dark" ? "#444" : "#f5f5f5" 
+                        : theme.palette.mode === "dark" ? "#333" : "#e3f2fd",
+                      borderRadius: 1, 
+                      mb: 1
+                    }}                    
                   >
-                    <ListItemText primary={notification.message} secondary={notification.created_at ? new Date(notification.created_at).toLocaleString() : "No timestamp"} />
+                    <ListItemText 
+                      primary={notification.message} 
+                      secondary={notification.created_at ? new Date(notification.created_at).toLocaleString() : "No timestamp"} 
+                      sx={{ color: theme.palette.text.primary }}/>
                   </ListItem>
                 </motion.div>
               ))
@@ -109,7 +118,14 @@ const Notifications = ({}) => {
 
       {/* Drawer for Extended Notification */}
       <Drawer anchor="right" open={openDrawer} onClose={handleCloseDrawer}>
-        <Box sx={{ width: 300, p: 2, background: "rgba(255, 255, 255, 0.9)", backdropFilter: "blur(10px)" }}>
+        <Box sx={{ 
+            width: 300, 
+            p: 2, 
+            backgroundColor: theme.palette.background.default, 
+            color: theme.palette.text.primary,
+            backdropFilter: "blur(10px)"
+          }}
+        >
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">Notification Details</Typography>
             <IconButton onClick={handleCloseDrawer}>

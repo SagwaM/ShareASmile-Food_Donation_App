@@ -17,7 +17,7 @@ const FoodDonationSchema = new mongoose.Schema({
   approval_status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: null }, 
   approved_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   claimed_by: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }],
-  claimed_date: { type: Date, default: null }, // ✅ Add this field
+  claimed_date: { type: Date, default: Date.now }, // ✅ Add this field
   rejection_reason: { type: String, default: null }, // ✅ Add this field
   image: { type: String, default: '' }, // Food image URL
   created_at: { type: Date, default: Date.now }

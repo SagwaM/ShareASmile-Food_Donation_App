@@ -145,3 +145,17 @@ We welcome contributions! Please follow these steps:
 
 > *“Together, we can make a difference. Let's fight hunger, one meal at a time!”* 🍽️💙
 
+---
+
+## 🔗 Links
+- **GitHub Repository**: [https://github.com/SagwaM/ShareASmile-Food_Donation_App](https://github.com/SagwaM/ShareASmile-Food_Donation_App)
+- **Live Demo**: [https://shareasmile.com](https://share-a-smile-food-donation-app.vercel.app/)
+- **API Documentation**: 
+
+---
+
+## 📸 Screenshots
+![Homepage Screenshot](<img width="799" alt="Homepage-SmileAShare" src="https://github.com/user-attachments/assets/c10393e5-d823-41c6-a869-851b7720e3b9" />
+)
+![Chat System Screenshot](<img width="282" alt="image" src="https://github.com/user-attachments/assets/656650d7-f631-4f21-8c32-68accdca7af6" />
+)

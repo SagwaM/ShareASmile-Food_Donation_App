@@ -384,7 +384,50 @@ router.put('/:id/approve', authenticateUser, multipleRoles(['donor', 'admin']), 
     res.status(500).json({ error: 'Server error' });
   }
 });
+// ✅ Update a food donation (Only the donor who created it)
+router.put('/:id', authenticateUser, donor, upload.single('image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { food_name, category, custom_category, quantity, description, expiry_date, pickup_location, status } = req.body;
+    
+    // Find the donation by ID
+    let donation = await FoodDonation.findById(id);
+    if (!donation) {
+      return res.status(404).json({ error: "Donation not found" });
+    }
 
+    // Ensure the logged-in user is the owner of the donation
+    if (donation.donor.toString() !== req.user.userId) {
+      return res.status(403).json({ error: "You are not authorized to edit this donation" });
+    }
+
+    // Update fields if provided
+    if (food_name) donation.food_name = food_name;
+    if (category) donation.category = category;
+    if (category === 'Others' && custom_category) {
+      donation.custom_category = custom_category;
+    }
+    if (quantity && !isNaN(quantity)) donation.quantity = Number(quantity);
+    if (description) donation.description = description;
+    if (expiry_date && !isNaN(Date.parse(expiry_date))) {
+      donation.expiry_date = new Date(expiry_date);
+    }
+    if (pickup_location) donation.pickup_location = pickup_location;
+    if (status) donation.status = status;
+
+    // Handle new image upload
+    if (req.file) {
+      donation.image = `/uploads/${req.file.filename}`;
+    }
+
+    await donation.save();
+    res.json({ message: "Donation updated successfully!", donation });
+
+  } catch (err) {
+    console.error("Error updating donation:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // ✅  Delete a food donation (Only donors or admins)
 router.delete('/:id', authenticateUser, multipleRoles(['admin', 'donor']), async (req, res) => {

@@ -429,9 +429,6 @@ const settings = ({ title }) => {
           </Typography>
           <Box sx={{ p: 3 }}>
             <Container maxWidth="lg" sx={{ py: 4 }}>
-                    <Typography variant="h4" gutterBottom>
-                      Account Settings
-                    </Typography>
                     <Typography variant="body1" color="text.secondary" paragraph>
                       Manage your account settings and preferences
                     </Typography>
@@ -486,7 +483,7 @@ const settings = ({ title }) => {
                             <Divider sx={{ my: 2 }} />
                             
                             <List component="nav" dense>
-                              <ListItem button sx={{ borderRadius: 1 }}>
+                              <ListItem button component= {Link} to = "/login" sx={{ borderRadius: 1 }}>
                                 <ListItemIcon>
                                   <Logout fontSize="small" />
                                 </ListItemIcon>

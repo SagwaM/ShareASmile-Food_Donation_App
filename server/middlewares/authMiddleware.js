@@ -14,6 +14,9 @@ const authenticateUser = (req, res, next) => {
     req.user = decoded; // Attach user data to request
     next();
   } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ error: "Token expired" }); // Explicitly handle expired token
+    }
     res.status(401).json({ error: 'Invalid token' });
   }
 };

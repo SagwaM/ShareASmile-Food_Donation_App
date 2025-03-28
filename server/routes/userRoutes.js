@@ -117,6 +117,22 @@ router.get('/recent', authenticateUser, admin, async (req, res) => {
   }
 });
 
+router.post("/toggle-2fa", authenticateUser, async (req, res) => {
+  try {
+      const user = await User.findById(req.user.id);
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      user.twoFactorEnabled = !user.twoFactorEnabled;
+      await user.save();
+
+      res.status(200).json({ message: `Two-factor authentication ${user.twoFactorEnabled ? "enabled" : "disabled"}` });
+  } catch (error) {
+      console.error("Toggle 2FA Error:", error);
+      res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // @route   GET /api/users/:id
 // @desc    Get user by ID (Admin only)

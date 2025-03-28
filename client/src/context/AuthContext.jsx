@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect } from "react";
-
+import { jwtDecode } from "jwt-decode";
 // Safe function to get and parse JSON from localStorage
 const getStoredUser = () => {
   try {
@@ -41,7 +41,6 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-
   // Load user from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -58,7 +57,28 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("token");
       }
     }
-  }, []);
+    if (state.token) {
+      try {
+        const decodedToken = jwtDecode(state.token);
+        const currentTime = Date.now() / 1000; // Convert to seconds
+
+        if (decodedToken.exp < currentTime) {
+          dispatch({ type: "LOGOUT" }); // Logout if token is expired
+        } else {
+          // Set timeout to automatically log out user when token expires
+          const timeUntilExpiration = (decodedToken.exp - currentTime) * 5000;
+          const logoutTimer = setTimeout(() => {
+            dispatch({ type: "LOGOUT" });
+          }, timeUntilExpiration);
+
+          return () => clearTimeout(logoutTimer);
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        dispatch({ type: "LOGOUT" });
+      }
+    }
+  }, [state.token]);
 
   return (
     <AuthContext.Provider value={{ ...state, dispatch }}>

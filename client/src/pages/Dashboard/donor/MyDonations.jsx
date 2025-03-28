@@ -1,7 +1,6 @@
 import React, { use, useEffect, useState } from 'react';
 import axios from 'axios';
 import {Link, useNavigate} from 'react-router-dom';
-import { message} from 'antd';
 import { Modal, Form, Table } from "react-bootstrap";
 import {
   Box,Typography,Divider,List,ListItem,ListItemIcon,ListItemText,Drawer,Toolbar,AppBar,Avatar,MenuItem,Menu,Dialog,DialogTitle,
@@ -12,7 +11,7 @@ import { PlusCircle } from 'lucide-react'
 import { useAuth } from "@/context/AuthContext"; // Assuming you have an auth context
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
-
+import { set } from 'date-fns';
 
 const iconMap = {
   Home: HomeIcon,
@@ -43,6 +42,8 @@ const MyDonations = ({title}) => {
     const [openModal, setOpenModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [newDonation, setNewDonation] = useState({ food_name: "", quantity: "" });
+    const [selectedDonation, setSelectedDonation] = useState(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
   
     const [profileAnchorEl, setProfileAnchorEl] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -79,6 +80,58 @@ const MyDonations = ({title}) => {
     useEffect(() => {
       fetchDonations();
     }, []);
+    
+    // Fetch Donation Details for Editing
+const handleUpdate = async (id, updatedDonationData) => {
+  try {
+    const response = await axios.put(`http://localhost:5000/api/food/${id}`, updatedDonationData, {
+      headers: { Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data" ,
+    }
+    });
+
+    setSelectedDonation(response.data.donation); // Update the selected donation with the response data
+    iziToast.success({
+      title: "Success",
+      message: "Donation updated successfully!",
+      position: "topRight",
+      timeout: 3000,
+    });
+    
+  } catch (error) {
+    iziToast.error({
+      title: "Error",
+      message: "Failed to fetch donation details",
+      position: "topRight",
+      timeout: 3000,
+    });
+  }
+};
+  const handleOpenEdit = (donation) => {
+    setSelectedDonation(donation);
+    setEditModalOpen(true);
+  };
+  const handleCloseEdit = () => {
+    setEditModalOpen(false);
+  };
+  // Handle Form Change
+  const handleEditChange = (e) => {
+  const { name, value } = e.target;
+  setSelectedDonation((prev) => ({
+    ...prev,
+    [name]: value || "",
+  }));
+  };
+  const handleEditSubmit = (e) => {
+  e.preventDefault(); // Prevents page reload
+
+  if (!selectedDonation || !selectedDonation._id) {
+    iziToast.error({ title: "Error", message: "Invalid donation", position: "topRight" });
+    return;
+  }
+
+  handleUpdate(selectedDonation._id, selectedDonation);
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -494,7 +547,7 @@ const MyDonations = ({title}) => {
                               <td>{new Date(donation.created_at).toLocaleDateString()}</td>
                               <td>
                                 <Stack direction="row" spacing={2} justifyContent="center">
-                                  <Button variant="contained" onClick={() => handleDelete(donation._id)}>
+                                  <Button variant="contained" onClick={() => handleOpenEdit(donation)}>
                                     <EditOutlined /> Edit
                                   </Button>
                                   <Button variant="contained" color="error" onClick={() => handleDelete(donation._id)}>
@@ -602,6 +655,84 @@ const MyDonations = ({title}) => {
                     </Button>
                   </DialogActions>
                 </Dialog>
+                <Dialog open={editModalOpen} onClose={handleCloseEdit} fullWidth maxWidth="sm">
+                  <DialogTitle>Edit Donation</DialogTitle>
+                  <DialogContent>
+                    {selectedDonation && (
+                      <Form onSubmit={handleEditSubmit}>
+                        <TextField
+                          label="Food Name"
+                          name="food_name"
+                          fullWidth
+                          margin="dense"
+                          value={selectedDonation.food_name}
+                          onChange={handleEditChange}
+                        />
+                        <TextField
+                          label="Category"
+                          name="category"
+                          fullWidth
+                          margin="dense"
+                          value={selectedDonation.category}
+                          onChange={handleEditChange}
+                        />
+                        <TextField
+                          label="Quantity"
+                          name="quantity"
+                          fullWidth
+                          margin="dense"
+                          value={selectedDonation.quantity}
+                          onChange={handleEditChange}
+                        />
+                        <TextField
+                          label="Description"
+                          name="description"
+                          fullWidth
+                          margin="dense"
+                          value={selectedDonation.description}
+                          onChange={handleEditChange}
+                        />
+                        <TextField
+                          label="Expiry Date"
+                          name="expiry_date"
+                          type="date"
+                          fullWidth
+                          margin="dense"
+                          value={selectedDonation.expiry_date}
+                          onChange={handleEditChange}
+                          InputLabelProps={{ shrink: true }}
+                        />
+                        <TextField
+                          label="Pickup Location"
+                          name="pickup_location"
+                          fullWidth
+                          margin="dense"
+                          value={selectedDonation.pickup_location}
+                          onChange={handleEditChange}
+                        />
+                        <TextField
+                          label="Status"
+                          name="status"
+                          fullWidth
+                          margin="dense"
+                          value={selectedDonation.status}
+                          onChange={handleEditChange}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          style={{ marginTop: "10px" }}
+                        />
+                      </Form>
+                    )}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseEdit} color="secondary">Cancel</Button>
+                    <Button onClick={(e) => handleEditSubmit(e)} color="primary">Update</Button>
+                  </DialogActions>
+                </Dialog>
+
                 </Box>
                 
               );

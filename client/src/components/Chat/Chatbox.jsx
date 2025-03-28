@@ -9,13 +9,34 @@ import Message from "./Message";
 import {useAuth} from "@/context/AuthContext";
 import { ThemeProviderWrapper } from "@/context/ThemeContext";
 import { useTheme } from "@mui/material/styles";
+import { format, isToday, isYesterday, formatDistanceToNow } from "date-fns";
 
 const socket = io("http://localhost:5000");
+// Group messages by date
+const groupMessagesByDate = (messages) => {
+  const grouped = [];
+  let lastDate = null;
+
+  messages.forEach((message) => {
+    const messageDateObj = new Date(message.timestamp).toLocaleDateString();
+    const formattedDate = format(messageDateObj, "EEEE, MMM d yyyy"); // Example: "Monday, Mar 25, 2025"
+
+    if (formattedDate !== lastDate) {
+      grouped.push({ type: "date", content: formattedDate });
+      lastDate = formattedDate;
+    }
+    
+    grouped.push({ type: "message", content: message });
+  });
+
+  return grouped;
+};
 const Chatbox = ({ onClose }) => {
   const {user} = useAuth();
   const theme = useTheme();
   const [participants, setParticipants] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  console.log("Selected user:", selectedUser);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [currentUserId, setCurrentUserId] = useState(null);
@@ -190,6 +211,7 @@ const Chatbox = ({ onClose }) => {
             <ArrowBackIcon />
           </IconButton>
         )}
+        {selectedUser && <Avatar src={`http://localhost:5000/uploads/${selectedUser.profile_picture}`} sx={{ mr: 2 }} />} 
         <Typography variant="h6">{selectedUser ? selectedUser.name : "Chats"}</Typography>
         <IconButton onClick={onClose} sx={{ color: "#fff", marginLeft: "auto" }}>
           <CloseIcon />
@@ -229,7 +251,7 @@ const Chatbox = ({ onClose }) => {
                   "&:hover": { backgroundColor: "#17B169" },
                 }}
               >
-                <Avatar src={user.profile_picture} sx={{ mr: 2 }} />
+                <Avatar src={`http://localhost:5000/uploads/${user.profile_picture}`} sx={{ mr: 2 }} />
                 <ListItemText primary={user.name} sx={{ fontSize: "16px" }} />
               </ListItem>
             ))}
@@ -240,8 +262,22 @@ const Chatbox = ({ onClose }) => {
           {loadingMessages ? (
             <CircularProgress />
           ) : messages.length > 0 ? (
-            messages.map((message) => (
-              <Message key={message._id} message={message} isSender={message.sender._id === currentUserId} />
+              groupMessagesByDate(messages).map((item, index) =>
+                item.type === "date" ? (
+                  <Typography
+                    key={index}
+                    variant="caption"
+                    sx={{
+                      textAlign: "center",
+                      color: "gray",
+                      marginBottom: "10px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {item.content}
+                  </Typography>
+                ) : (
+              <Message key={item.content._id} message={item.content} isSender={item.content.sender._id === currentUserId} />
             ))
           ) : (
             <Typography variant="body2" color="textSecondary">No messages yet...</Typography>
@@ -250,6 +286,12 @@ const Chatbox = ({ onClose }) => {
       )}
 
       {/* Message Input */}
+      {isTyping && (
+        <Typography variant="caption" sx={{ color: "gray", fontStyle: "italic" }}>
+          {selectedUser?.name} is typing...
+        </Typography>
+      )}
+
       {selectedUser && (
         <Box sx={{ p: 1, display: "flex", alignItems: "center", borderTop: "1px solid #ddd" }}>
           <TextField
@@ -258,7 +300,7 @@ const Chatbox = ({ onClose }) => {
             placeholder="Type a message..."
             size="small"
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={(e) => {setNewMessage(e.target.value); handleTyping();}}
             sx={{
               backgroundColor: theme.palette.background.default,
               color: theme.palette.text.primary,
@@ -271,6 +313,9 @@ const Chatbox = ({ onClose }) => {
                 },
                 "&.Mui-focused fieldset": {
                   borderColor: theme.palette.primary.dark,
+                },
+                "& input": {
+                  color: theme.palette.text.primary, // Ensures text is visible
                 },
               },
             }}

@@ -19,8 +19,18 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     open: true,
+    proxy: {
+      "/api": {
+        target: "https://shareasmile-food-donation-app.onrender.com",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
   preview: {
     port: 8080,
-  }
+  },
+  define: {
+    "process.env": {},
+  },
 })

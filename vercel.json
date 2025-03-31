@@ -1,9 +1,15 @@
 {
     "rewrites": [
-      { "source": "/(.*)", "destination": "/index.html" }
+      { "source": "/(.*)", "destination": "/index.html" },
+      { "source": "/api/(.*)", "destination": "https://shareasmile-food-donation-app.onrender.com/api/$1" }
     ],
-    "redirects": [
-      { "source": "/api/(.*)", "destination": "http://localhost:5000/api/$1", "statusCode": 200 }
+    "headers": [
+      {
+        "source": "/(.*)",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      }
     ]
   }
   

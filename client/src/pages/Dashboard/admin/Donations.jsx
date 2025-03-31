@@ -453,6 +453,7 @@ const Donations = ({ title }) => {
               <th>Status</th>
               <th>Donor</th>
               <th>Date</th>
+              <th>Expiry Date</th>
               
             </tr>
           </thead>
@@ -468,6 +469,7 @@ const Donations = ({ title }) => {
                   </td>
                   <td>{donation.donor.name}</td>
                   <td>{new Date(donation.created_at).toLocaleDateString()}</td>
+                  <td>{new Date(donation.expiry_date).toLocaleDateString()}</td>
                 </tr>
               ))
             ) : (

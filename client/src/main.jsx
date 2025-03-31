@@ -12,9 +12,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <ThemeProviderWrapper>
-        <BrowserRouter> {/* ✅ Wrap App in BrowserRouter */}
           <App />
-        </BrowserRouter>
       </ThemeProviderWrapper>
     </AuthProvider>
   </StrictMode>

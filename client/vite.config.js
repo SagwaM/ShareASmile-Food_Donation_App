@@ -10,11 +10,17 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
-  base: "./",
+  base: "/",
   build: {
     outDir: "dist",
   },
   server: {
-    historyApiFallback: true
+    host: "0.0.0.0",
+    port: 5173,
+    strictPort: true,
+    open: true,
+  },
+  preview: {
+    port: 8080,
   }
 })

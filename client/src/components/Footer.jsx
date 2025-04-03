@@ -193,7 +193,7 @@ const Footer = () => {
                       Visit Us:
                     </Typography>
                     <Typography variant="body2" fontWeight="medium">
-                      123 Sharing Street, NY 10001
+                    Ngong Road, Nairobi, Kenya
                     </Typography>
                   </Box>
                 </Stack>

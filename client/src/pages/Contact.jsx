@@ -12,6 +12,7 @@ import {
   ListItemText
 } from '@mui/material';
 import { Email, Phone, LocationOn } from '@mui/icons-material';
+import KenyaMap from "@/components/KenyaMap";// Import the interactive map component
 
 const Contact = () => {
   return (
@@ -117,7 +118,7 @@ const Contact = () => {
                   </ListItemIcon>
                   <ListItemText 
                     primary="Address" 
-                    secondary="123 Sharing Street, New York, NY 10001" 
+                    secondary="Ngong Road, Nairobi, Kenya" 
                   />
                 </ListItem>
               </List>
@@ -132,11 +133,7 @@ const Contact = () => {
                   aspectRatio: '16/9'
                 }}
               >
-                <img
-                  src="/placeholder.svg"
-                  alt="Location map"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+                <KenyaMap /> {/* Replace with the actual map component */}
               </Box>
             </Paper>
           </Grid>

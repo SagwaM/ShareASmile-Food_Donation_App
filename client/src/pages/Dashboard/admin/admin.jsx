@@ -242,8 +242,14 @@ const AdminDashboard = () => {
             trend={{ value: "+3 this month", direction: "up" }}
           />
           <StatCard 
-            title="Food Saved (lbs)" 
+            title="Availble Donations (lbs)" 
             value={stats?.availableDonations ?? 0}
+            icon={<TrendingUpOutlined fontSize="medium" />} 
+            trend={{ value: "+8% this month", direction: "up" }}
+          />
+          <StatCard 
+            title="Food Saved (lbs)" 
+            value={stats?.foodSaved ?? 0}
             icon={<TrendingUpOutlined fontSize="medium" />} 
             trend={{ value: "+8% this month", direction: "up" }}
           />

@@ -122,12 +122,16 @@ router.get("/admin", authenticateUser, async (req, res) => {
         const totalDonations = await Donation.countDocuments();
         const totalClaims = await Donation.countDocuments({ claimed_by: { $ne: null } });
         const availableDonations = await Donation.countDocuments({ status: "Available" });
+        const foodSaved = await Donation.aggregate([
+            { $group: { _id: null, total: { $sum: "$quantity" } } },
+        ]);
 
         res.status(200).json({ 
             totalUsers: userCounts, 
             totalDonations, 
             totalClaims, 
-            availableDonations });
+            availableDonations,
+            foodSaved: foodSaved[0]?.total || 0});
 
     } catch (error) {
         console.error(error);

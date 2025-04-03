@@ -405,7 +405,7 @@ const Reports = ({ title }) => {
                   dataKey="count" 
                   fill="" >
                     {totalDonations.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={["#4caf50", "#4fd8c6"][index % 2]} />
+                      <Cell key={`cell-${index}`} fill={["#4caf50", "#4fd8c6", "#82ca9d"][index % 3]} />
                     ))}
                   </Bar>
               

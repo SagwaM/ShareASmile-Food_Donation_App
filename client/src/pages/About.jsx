@@ -40,7 +40,7 @@ const About = () => {
         >
           <Box
             component="img"
-            src="https://images.unsplash.com/photo-1593504049359-74330189a345?auto=format&fit=crop&q=80&w=1920&h=1080"
+            src="/images/Food_Sharing_Community.png"
             alt="Community food sharing"
             sx={{
               width: '100%',
@@ -110,7 +110,7 @@ const About = () => {
                   had to be a better way.
                 </Typography>
                 <Typography paragraph color="text.secondary">
-                  FoodShare was born from a simple idea: connect those with excess
+                  ShareASmile was born from a simple idea: connect those with excess
                   food to those who need it most. Our platform makes it easy to donate
                   food that would otherwise go to waste, ensuring it reaches people
                   in our community who can use it.
@@ -145,7 +145,7 @@ const About = () => {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1488559184984-32e51572b7c3?auto=format&fit=crop&q=80&w=800&h=800"
+                  src="/images/Food_Sharing_Community.png"
                   alt="Food sharing community"
                 />
               </Box>

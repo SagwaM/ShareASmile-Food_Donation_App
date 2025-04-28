@@ -150,7 +150,6 @@ const Claims = ({ title }) => {
         console.error("Error rejecting claim:", error.response?.data?.error || error.message);
       } finally {setLoading(false);}
     };
-  if (loading) return <CircularProgress />;
   
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -167,7 +166,6 @@ const donorSidebarItems = [
     { icon: "Settings", label: "Settings", href: "/settings" },
   ];
  
-
   const sidebarItemsMap = { donor: donorSidebarItems };
   const sidebarItems = sidebarItemsMap[userType];
 
@@ -187,7 +185,8 @@ const donorSidebarItems = [
   const isActive = (href) => {
     return window.location.pathname === href;
   };
-
+ if (loading) return <CircularProgress animation="border" />;
+ 
   const drawer = (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
       <Box sx={{ p: 3, display: "flex", flexDirection: "column", alignItems: "center" }}>

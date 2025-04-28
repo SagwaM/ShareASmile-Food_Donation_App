@@ -23,27 +23,27 @@ const statsRoutes = require('./routes/statsRoutes'); // ✅ Import statsRoutes
 // Middleware
 app.use(express.json());
 // ✅ Secure CORS Configuration
-app.use(cors(
-  {
-    origin: [ "http://localhost:5173", "https://share-a-smile-food-donation-app.vercel.app"], // Allow only specific origin
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }
-));
-app.use((req, res, next) => {
-  const allowedOrigins = ["http://localhost:5173", "https://share-a-smile-food-donation-app.vercel.app"];
-  const origin = req.headers.origin;
-  
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
-  
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+// List of allowed origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://share-a-smile-food-donation-app.vercel.app"
+];
+
+// CORS middleware
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {

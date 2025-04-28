@@ -121,10 +121,9 @@ const Donations = ({ title }) => {
         setLoading(false);
       }
     };
-  
     fetchDonations();
   }, []);
-  
+  if (loading) return <CircularProgress/>;
   const sidebarItemsMap = { admin: adminSidebarItems };
   const sidebarItems = sidebarItemsMap[userType];
 
@@ -140,11 +139,9 @@ const Donations = ({ title }) => {
     setMobileOpen(!mobileOpen);
   };
 
-
   const isActive = (href) => {
     return window.location.pathname === href;
   };
- if (loading) return <CircularProgress animation="border" />;
  
   const drawer = (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>

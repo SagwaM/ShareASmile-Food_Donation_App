@@ -189,7 +189,7 @@ const Chatbox = ({ onClose }) => {
     }, 3000);
   };
   
-  if (loading) return <CircularProgress animation="border" />;
+  if (loading) return <CircularProgress/>;
   return (
     <ThemeProviderWrapper>
     <Paper

@@ -83,7 +83,7 @@ export default function DashboardLayout({ children, title, userType, userData })
       const token= localStorage.getItem('token');
 
       try {
-        const {data} = await axios.get("http://localhost:5000/api/notification/",{
+        const {data} = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/notification/`,{
           headers: {Authorization: `Bearer ${token}`,} 
       });
         console.log("Notifications Response:", data);

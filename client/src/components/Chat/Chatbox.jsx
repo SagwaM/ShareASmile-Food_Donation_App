@@ -11,7 +11,7 @@ import { ThemeProviderWrapper } from "@/context/ThemeContext";
 import { useTheme } from "@mui/material/styles";
 import { format, isToday, isYesterday, formatDistanceToNow } from "date-fns";
 
-const socket = io("http://localhost:5000");
+const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
 // Group messages by date
 const groupMessagesByDate = (messages) => {
   const grouped = [];
@@ -49,7 +49,7 @@ const Chatbox = ({ onClose }) => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/user/profile", {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setCurrentUserId(response.data._id); // Store the logged-in user's ID
@@ -79,12 +79,12 @@ const Chatbox = ({ onClose }) => {
     const fetchChatData = async () => {
       try {
         const convRes = await axios.get(
-          "http://localhost:5000/api/message/conversations/list",
+          `${import.meta.env.VITE_API_BASE_URL}/api/message/conversations/list`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
         // Fetch all users
-        const usersRes = await axios.get("http://localhost:5000/api/user/users", {
+        const usersRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/user/users`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -123,7 +123,7 @@ const Chatbox = ({ onClose }) => {
   const fetchMessages = async (userId) => {
     setLoadingMessages(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/message/${userId}`,
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/message/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const sortedMessages = response.data.sort(
@@ -136,7 +136,7 @@ const Chatbox = ({ onClose }) => {
         if (message.receiver === currentUserId && !message.read) {
           try {
             await axios.put(
-              `http://localhost:5000/api/message/${message._id}/read`,
+              `${import.meta.env.VITE_API_BASE_URL}/api/message/${message._id}/read`,
               {},
               { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -162,7 +162,7 @@ const Chatbox = ({ onClose }) => {
     if (!newMessage.trim()) return;
 
     try {
-      const response = await axios.post("http://localhost:5000/api/message/",
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/message/`,
         { receiver: selectedUser._id, content: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -211,7 +211,7 @@ const Chatbox = ({ onClose }) => {
             <ArrowBackIcon />
           </IconButton>
         )}
-        {selectedUser && <Avatar src={`http://localhost:5000/uploads/${selectedUser.profile_picture}`} sx={{ mr: 2 }} />} 
+        {selectedUser && <Avatar src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${selectedUser.profile_picture}`} sx={{ mr: 2 }} />} 
         <Typography variant="h6">{selectedUser ? selectedUser.name : "Chats"}</Typography>
         <IconButton onClick={onClose} sx={{ color: "#fff", marginLeft: "auto" }}>
           <CloseIcon />
@@ -251,7 +251,7 @@ const Chatbox = ({ onClose }) => {
                   "&:hover": { backgroundColor: "#17B169" },
                 }}
               >
-                <Avatar src={`http://localhost:5000/uploads/${user.profile_picture}`} sx={{ mr: 2 }} />
+                <Avatar src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${user.profile_picture}`} sx={{ mr: 2 }} />
                 <ListItemText primary={user.name} sx={{ fontSize: "16px" }} />
               </ListItem>
             ))}

@@ -41,7 +41,7 @@ const settings = ({ title }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/user/profile", {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log("Fetched User Data:", response.data);
@@ -441,7 +441,7 @@ const settings = ({ title }) => {
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
                               <Box sx={{ position: 'relative', mb: 2 }}>
                                 <Avatar 
-                                  src={user.profile_picture ? `http://localhost:5000/uploads/${user.profile_picture}`: "https://randomuser.me/api/portraits/women/44.jpg" }
+                                  src={user.profile_picture ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${user.profile_picture}`: "https://randomuser.me/api/portraits/women/44.jpg" }
                                   alt={user.name}
                                   sx={{ width: 100, height: 100 }}
                                 />

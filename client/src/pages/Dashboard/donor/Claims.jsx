@@ -84,7 +84,7 @@ const Claims = ({ title }) => {
     
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/food/claims",{
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/claims`,{
               headers: { Authorization: `Bearer ${token}` } 
         });
         console.log("Claims Response:", response.data);
@@ -106,7 +106,7 @@ const Claims = ({ title }) => {
         console.error("Error fetching claims:", error);
       }
     };
-  
+
     const handleApprove = async (id, claimId) => {
       if (!id || !claimId) {
         console.error("Error: Donation ID is undefined!");
@@ -114,7 +114,7 @@ const Claims = ({ title }) => {
       }
       try {
         const token = localStorage.getItem("token");
-        await axios.put(`http://localhost:5000/api/food/${id}/approve`, { action: "approve", claimId}, {
+        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/food/${id}/approve`, { action: "approve", claimId}, {
               headers: { Authorization: `Bearer ${token}` } 
         });
         setClaims(prev => ({
@@ -134,7 +134,7 @@ const Claims = ({ title }) => {
       }
       try {
         const token = localStorage.getItem("token");
-        await axios.put(`http://localhost:5000/api/food/${id}/approve`, { action: "reject", claimId, rejection_reason }, {
+        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/food/${id}/approve`, { action: "reject", claimId, rejection_reason }, {
               headers: { Authorization: `Bearer ${token}` } 
         });
         setClaims(prev => ({

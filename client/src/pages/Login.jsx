@@ -47,7 +47,7 @@ const LoginPage = () => {
 
     // Simulating login process
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, { email, password });
       console.log('API Response:', response.data); // Debugging log
 
       const { token, user } = response.data;

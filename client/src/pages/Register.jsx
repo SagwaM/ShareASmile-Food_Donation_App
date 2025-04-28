@@ -75,7 +75,7 @@ export default function RegisterPage() {
     formDataToSend.append("profile_picture", formData.profile_picture); // Append file
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", formDataToSend, {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

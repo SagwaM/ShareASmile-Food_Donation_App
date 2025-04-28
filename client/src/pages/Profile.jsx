@@ -39,7 +39,7 @@ const Profile = ({ title }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/user/profile", {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log("Fetched User Data:", response.data);

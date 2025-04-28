@@ -54,7 +54,7 @@ const AdminDashboard = () => {
       try {
         console.log("Fetching statistics...");
         
-        const response = await axios.get("http://localhost:5000/api/stats/admin",{
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stats/admin`,{
             headers: { Authorization: `Bearer ${token}` }
           });
           console.log("Stats Response:", response.data);
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
 
     const fetchAdminActivities = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/stats/activities/admin", {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stats/activities/admin`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log("Activity Response:", response.data);
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
       
     const fetchRecentFoodDonations = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/food/recent", {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/recent`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log("Donations Response:", response.data);
@@ -90,7 +90,7 @@ const AdminDashboard = () => {
 
     const fetchRecentUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/user/recent", {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/user/recent`, {
             headers: { Authorization: `Bearer ${token}` }
           });
         console.log("Users Response:", response.data);

@@ -62,7 +62,7 @@ const MyDonations = ({title}) => {
 
     const fetchDonations = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/food/my-donations', {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/my-donations`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setDonations(response.data);
@@ -84,7 +84,7 @@ const MyDonations = ({title}) => {
     // Fetch Donation Details for Editing
 const handleUpdate = async (id, updatedDonationData) => {
   try {
-    const response = await axios.put(`http://localhost:5000/api/food/${id}`, updatedDonationData, {
+    const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/food/${id}`, updatedDonationData, {
       headers: { Authorization: `Bearer ${token}`,
       "Content-Type": "multipart/form-data" ,
     }
@@ -135,7 +135,7 @@ const handleUpdate = async (id, updatedDonationData) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/food/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/food/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDonations(donations.filter(donation => donation._id !== id));
@@ -202,7 +202,7 @@ const handleUpdate = async (id, updatedDonationData) => {
       console.log("FormData:", [...formDataToSend.entries()]); // Debugging
   
       try {
-        const response = await axios.post(`http://localhost:5000/api/food/`, formDataToSend, {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/food/`, formDataToSend, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",

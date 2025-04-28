@@ -8,7 +8,6 @@ import { Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from 'axios';
 
-
 const NgoDashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
@@ -25,7 +24,7 @@ const NgoDashboard = () => {
         console.log("Fetching statistics...");
 
         // Fetch recipient stats
-        const response = await axios.get(`http://localhost:5000/api/stats/recipient`, { 
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stats/recipient`, { 
           headers: { Authorization: `Bearer ${token}` } 
         });
         console.log("Stats Response:", response.data);
@@ -42,7 +41,7 @@ const NgoDashboard = () => {
           console.log("Fetching requests...");
 
           // Fetch recipient requests
-          const response = await axios.get("http://localhost:5000/api/food/requests", { 
+          const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/requests`, { 
             headers: { Authorization: `Bearer ${token}` } 
           });
           console.log("Requests Response:", response.data);
@@ -60,7 +59,7 @@ const NgoDashboard = () => {
           console.log("Fetching activities...");  
 
       // Fetch recent activities
-      const response = await axios.get("http://localhost:5000/api/stats/activities/recipient", { 
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stats/activities/recipient`, { 
         headers: { Authorization: `Bearer ${token}` } 
       })
       console.log("Activity Response:", response.data);

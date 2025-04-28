@@ -30,7 +30,7 @@ import PageLayout from '../components/PageLayout';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000/uploads';  // Ensure this is correct
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/uploads`;  // Ensure this is correct
 const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/150';
 
 const CATEGORIES = [
@@ -66,7 +66,7 @@ const DonationsPage = () => {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/food/');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/`);
         console.log("Fetched Data:", response.data); 
         setDonations(response.data);
         setLoading(false);

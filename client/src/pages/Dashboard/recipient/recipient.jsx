@@ -25,7 +25,7 @@ const RecipientDashboard = () => {
         console.log("Fetching statistics...");
 
         // Fetch recipient stats
-        const response = await axios.get(`http://localhost:5000/api/stats/recipient`, { 
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stats/recipient`, { 
           headers: { Authorization: `Bearer ${token}` } 
         });
         console.log("Stats Response:", response.data);
@@ -42,7 +42,7 @@ const RecipientDashboard = () => {
           console.log("Fetching requests...");
 
           // Fetch recipient requests
-          const response = await axios.get("http://localhost:5000/api/food/requests", { 
+          const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/requests`, { 
             headers: { Authorization: `Bearer ${token}` } 
           });
           console.log("Requests Response:", response.data);
@@ -60,7 +60,7 @@ const RecipientDashboard = () => {
           console.log("Fetching activities...");  
 
       // Fetch recent activities
-      const response = await axios.get("http://localhost:5000/api/stats/activities/recipient", { 
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stats/activities/recipient`, { 
         headers: { Authorization: `Bearer ${token}` } 
       })
       console.log("Activity Response:", response.data);
@@ -75,7 +75,6 @@ const RecipientDashboard = () => {
   fetchRecipientStats();
   fetchRecipientRequests();
   fetchRecipientActivities();
-
 }, []);
 
   if (loadingStats && loadingRequests && loadingActivities) {

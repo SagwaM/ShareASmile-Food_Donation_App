@@ -72,7 +72,7 @@ const DonorDashboard = () => {
   useEffect(() => {
     if (!token) return; // ❌ Exit if no token
     // Fetch statistics
-    axios.get(`http://localhost:5000/api/stats/donor`, {
+    axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stats/donor`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then((response) => {
@@ -80,7 +80,7 @@ const DonorDashboard = () => {
       })
       .catch((error) => console.error("Error fetching stats:", error));
     // Fetch recent activity
-    axios.get(`http://localhost:5000/api/stats/activities/donor`, {
+    axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stats/activities/donor`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then((response) => {
@@ -110,7 +110,7 @@ const DonorDashboard = () => {
   // ✅ Fetch donations (if not already implemented)
   const fetchDonations = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/food/`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDonations(response.data);
@@ -131,7 +131,7 @@ const DonorDashboard = () => {
     console.log("FormData:", [...formDataToSend.entries()]); // Debugging
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/food/`, formDataToSend, {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/food/`, formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

@@ -72,7 +72,7 @@ const AvailableDonations = ({ title }) => {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/food/available");
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/available`);
         console.log("Donations Response:", response.data);
         setDonations(response.data);
       } catch (error) {
@@ -92,7 +92,7 @@ const handleRequest = async (id) => {
         return;
     }
     try {
-      await axios.put(`http://localhost:5000/api/food/claim/${id}`, {},
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/food/claim/${id}`, {},
         { headers: { Authorization: `Bearer ${token}` } 
       });
       iziToast.success({

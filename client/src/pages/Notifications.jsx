@@ -18,7 +18,7 @@ const Notifications = ({}) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/notification/",{
+        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/notification/`,{
            headers: { Authorization: `Bearer ${token}` } 
         });
         setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
@@ -49,7 +49,7 @@ const Notifications = ({}) => {
 
     if (!notification.read) {
       try {
-        await axios.put(`http://localhost:5000/api/notification/read/${notification._id}`,{},{
+        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/notification/read/${notification._id}`,{},{
             headers: { Authorization: `Bearer ${token}` } 
         });
         setNotifications((prev) =>

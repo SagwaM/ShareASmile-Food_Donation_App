@@ -20,16 +20,30 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const statsRoutes = require('./routes/statsRoutes'); // ✅ Import statsRoutes
 
-// ✅ Secure CORS Configuration
-const corsOptions = {
-  origin: process.env.CLIENT_URL || "*", // Restrict CORS in production
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-};
-
 // Middleware
 app.use(express.json());
-app.use(cors());
+// ✅ Secure CORS Configuration
+app.use(cors(
+  {
+    origin: [ "http://localhost:5173", "https://share-a-smile-food-donation-app.vercel.app"], // Allow only specific origin
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }
+));
+app.use((req, res, next) => {
+  const allowedOrigins = ["http://localhost:5173", "https://share-a-smile-food-donation-app.vercel.app"];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {

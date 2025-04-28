@@ -79,7 +79,7 @@ const MyRequests = ({ title }) => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/food/requests",
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/requests`,
           { headers: { Authorization: `Bearer ${token}` },
         });
         console.log("Requests:", response.data);
@@ -95,7 +95,7 @@ const MyRequests = ({ title }) => {
 
   const handleCancelRequest = async (id) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/food/cancel/${id}`, {}, 
+      const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/food/cancel/${id}`, {}, 
         {headers: { Authorization: `Bearer ${token}` },
       });
   

@@ -108,7 +108,7 @@ const Donations = ({ title }) => {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/food/', {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/food/`, {
             headers: {Authorization: `Bearer ${token}`},
         });
         console.log("Fetched Data:", response.data); 

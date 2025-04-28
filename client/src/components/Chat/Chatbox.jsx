@@ -43,6 +43,7 @@ const Chatbox = ({ onClose }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
 
   // Fetch logged-in user profile
@@ -109,6 +110,8 @@ const Chatbox = ({ onClose }) => {
         setAllUsers(newUsers);
       } catch (error) {
         console.error("Error fetching participants:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -186,8 +189,7 @@ const Chatbox = ({ onClose }) => {
     }, 3000);
   };
   
-
-
+  if (loading) return <CircularProgress animation="border" />;
   return (
     <ThemeProviderWrapper>
     <Paper

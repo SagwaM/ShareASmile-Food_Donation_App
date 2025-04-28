@@ -104,6 +104,8 @@ const Claims = ({ title }) => {
         setClaims(response.data);
       } catch (error) {
         console.error("Error fetching claims:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -124,6 +126,8 @@ const Claims = ({ title }) => {
         }));
       } catch (error) {
         console.error("Error approving claim:", error.response?.data?.error || error.message);
+      }  finally {
+        setLoading(false);
       }
     };
   
@@ -144,9 +148,9 @@ const Claims = ({ title }) => {
         }));
       } catch (error) {
         console.error("Error rejecting claim:", error.response?.data?.error || error.message);
-      }
+      } finally {setLoading(false);}
     };
-  
+  if (loading) return <CircularProgress />;
   
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);

@@ -87,8 +87,12 @@ const DonorDashboard = () => {
         console.log("Recent Activity Response:", response.data);  // Debugging
         setRecentActivity(response.data.activities);
       })
-      .catch((error) => console.error("Error fetching activity:", error));
+      .catch((error) => console.error("Error fetching activity:", error))
+      .finally(() => setLoading(false)); // ✅ Set loading to false after fetching
+    // Fetch donations
+    
   }, [token]);
+  if (loading) return <CircularProgress />;
 
   const handleChange = (e) => {
     const { name, value } = e.target;

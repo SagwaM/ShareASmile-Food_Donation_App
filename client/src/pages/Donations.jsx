@@ -19,7 +19,8 @@ import {
   Select,
   Divider,
   Paper,
-  useTheme
+  useTheme,
+  CircularProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -79,7 +80,7 @@ const DonationsPage = () => {
   
     fetchDonations();
   }, []);
-  
+  if (loading) return <CircularProgress />;
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
     setPage(1);
@@ -122,18 +123,6 @@ const DonationsPage = () => {
     
     return matchesSearch && matchesCategory && matchesDistance;
   });
-  const calculateExpiry = (expiryDate) => {
-    if (!expiryDate) return "No expiry date";
-    const now = new Date();
-    const expiry = new Date(expiryDate);
-    const diffInMs = expiry - now;
-    const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
-    
-    if (diffInDays < 0) return "Expired";
-    if (diffInDays === 0) return "Expires today";
-    
-    return `Expires in ${diffInDays} day${diffInDays > 1 ? 's' : ''}`;
-  };  
 
   // Pagination
   const itemsPerPage = 4;
@@ -262,7 +251,6 @@ const DonationsPage = () => {
                     }}
                     image={donation.image ? `${BASE_URL}/${donation.image}` : PLACEHOLDER_IMAGE}
                     alt={donation.food_name}
-                    onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_IMAGE }}
                   />
                   <Box sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', sm: '60%' } }}>
                     <CardContent sx={{ flexGrow: 1 }}>
@@ -286,7 +274,7 @@ const DonationsPage = () => {
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <AccessTimeIcon color="error" fontSize="small" />
                             <Typography variant="body2">
-                            Expires: {calculateExpiry(donation.expiry_date)}
+                              Expires in: {donation.expiry_date ? new Date(donation.expiry_date).toLocaleString() : "No timestamp"}
                             </Typography>
                           </Box>
                         </Grid>

@@ -19,7 +19,8 @@ import {
   alpha, 
   useTheme, 
   TableCell,
-  Table
+  Table,
+  CircularProgress
 } from "@mui/material";
 import { 
   InventoryOutlined, 
@@ -108,9 +109,7 @@ const AdminDashboard = () => {
     fetchRecentFoodDonations();
     fetchRecentUsers();
   }, []);
-
-
-
+  if (loading) return <CircularProgress />;
   // Status badge component - FIXED
   const StatusBadge = ({ status }) => {
     let colorMain;

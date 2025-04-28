@@ -4,7 +4,7 @@ import {Link, useNavigate} from 'react-router-dom';
 import { Modal, Form, Table } from "react-bootstrap";
 import {
   Box,Typography,Divider,List,ListItem,ListItemIcon,ListItemText,Drawer,Toolbar,AppBar,Avatar,MenuItem,Menu,Dialog,DialogTitle,
-  DialogContent,DialogActions,TextField,IconButton,CssBaseline,useTheme,Button, Stack} from "@mui/material";
+  DialogContent,DialogActions,TextField,IconButton,CssBaseline,useTheme,Button, Stack, CircularProgress} from "@mui/material";
 import {BarChart as BarChartIcon,Home as HomeIcon,Inventory as InventoryIcon,Settings as SettingsIcon,People as PeopleIcon,Favorite as FavoriteIcon,Logout as LogoutIcon,Menu as MenuIcon,Notifications as NotificationsIcon,Person as PersonIcon,ChevronRight as ChevronRightIcon,
   Add as AddIcon,Delete as DeleteIcon,AssignmentTurnedIn as AssignmentTurnedInIcon, DeleteOutline, EditOutlined} from "@mui/icons-material";
 import { PlusCircle } from 'lucide-react'
@@ -80,7 +80,7 @@ const MyDonations = ({title}) => {
     useEffect(() => {
       fetchDonations();
     }, []);
-    
+    if (loading) return <CircularProgress />;
     // Fetch Donation Details for Editing
 const handleUpdate = async (id, updatedDonationData) => {
   try {

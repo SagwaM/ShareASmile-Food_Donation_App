@@ -18,6 +18,7 @@ import {
   IconButton,
   CssBaseline,
   useTheme,
+  CircularProgress,
 } from "@mui/material";
 
 import {
@@ -55,6 +56,7 @@ const ManageUsers = ({ title }) => {
   const [users, setUsers] = useState([]);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
 
   const StatusBadge = ({ role }) => {
@@ -122,13 +124,14 @@ const ManageUsers = ({ title }) => {
         } catch (error) {
           console.log("Fetched Notifications:", data);
           console.error("Error fetching notifications:", error);
-         
+        } finally {
+          setLoading(false);
         }
       };
       fetchUsers();
 
   }, []);
-
+  if (loading) return <CircularProgress />;
   const sidebarItemsMap = { admin: adminSidebarItems };
   const sidebarItems = sidebarItemsMap[userType];
 

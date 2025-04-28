@@ -18,6 +18,7 @@ import {
   IconButton,
   CssBaseline,
   useTheme,
+  CircularProgress
 } from "@mui/material";
 
 import {
@@ -123,7 +124,7 @@ const Donations = ({ title }) => {
   
     fetchDonations();
   }, []);
-
+  if (loading) return <CircularProgress />;
   const sidebarItemsMap = { admin: adminSidebarItems };
   const sidebarItems = sidebarItemsMap[userType];
 

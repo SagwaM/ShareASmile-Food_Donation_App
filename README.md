@@ -5,6 +5,18 @@
 
 By leveraging **Node.js, Express, MongoDB, and React**, this platform ensures seamless donation management, tracking, and communication between stakeholders.
 
+## 🔐 Credentials
+| Role               | Email                         | Password           |
+|--------------------|-----------------------------|--------------------|
+| Admin             | sagwakmaria@gmail.com        | adminpass123       |
+| Donor             | ariavhope4@gmail.com         | @Mingyu_donor      |
+| Recipient         | rhimelkhan@gmail.com         | @Byeon_recipient   |
+| NGO               | angela.otieno254@gmail.com   | @Miran_ngo*        |
+| Donor-Supermarket | sugakookiemin8@gmail.com     | *Mart_supermarket  |
+| Donor-Restaurant  | savory.haven@gmail.com       | *Savory_restaurant |
+
+---
+
 ## 🎯 Key Features
 ✅ **User Roles**: Donor, Recipient, NGO, Admin  
 ✅ **Donation Management**: Create, view, and claim food donations  
@@ -76,7 +88,7 @@ SHAREASMILE-FOOD_DONATION_APP/
 
 ### Frontend 🎨
 - **React.js** → Dynamic UI & user experience
-- **ShadCN UI & Radix UI** → Modern UI components
+- **Material UI** → Modern UI components
 - **Bootstrap & CSS** → Styling and layout
 
 ---
@@ -101,12 +113,13 @@ $ npm start
 
 ### 3️⃣ Frontend Setup
 ```sh
+$ cd vite@latest foldername
 $ cd client
 $ npm install
 $ npm start
 ```
 
-🚀 **Visit:** `http://localhost:3000/` to access the platform.
+🚀 **Visit:** `http://localhost:3000/](https://share-a-smile-food-donation-app.vercel.app` to access the platform.
 
 ---
 

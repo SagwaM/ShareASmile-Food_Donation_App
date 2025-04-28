@@ -23,24 +23,10 @@ const statsRoutes = require('./routes/statsRoutes'); // ✅ Import statsRoutes
 // Middleware
 app.use(express.json());
 // ✅ Secure CORS Configuration
-// List of allowed origins
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://share-a-smile-food-donation-app.vercel.app"
-];
 
 // CORS middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: "https://share-a-smile-food-donation-app.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
